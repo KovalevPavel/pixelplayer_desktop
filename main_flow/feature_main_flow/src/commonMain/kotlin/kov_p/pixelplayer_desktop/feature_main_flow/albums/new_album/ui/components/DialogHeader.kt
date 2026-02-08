@@ -31,17 +31,18 @@ import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import kov_p.pixelplayer_desktop.feature_main_flow.albums.new_album.AvailableArtistVs
+import kov_p.pixelplayer_desktop.feature_main_flow.albums.new_album.ui.AlbumCover
 
 @Composable
 internal fun DialogHeader(
     selectedArtist: AvailableArtistVs?,
     artists: List<AvailableArtistVs>,
     albumName: String,
-    cover: String,
+    cover: AlbumCover?,
     albumYear: String,
     onArtistSelect: (AvailableArtistVs) -> Unit,
     onAlbumNameChanged: (String) -> Unit,
-    onCoverSelected: (String) -> Unit,
+    onCoverSelected: (AlbumCover) -> Unit,
     onYearChanged: (String) -> Unit,
 ) {
 
@@ -113,7 +114,7 @@ internal fun DialogHeader(
         }
 
         AlbumCover(
-            path = cover,
+            cover = cover,
             onImageSelected = onCoverSelected,
         )
     }
@@ -130,7 +131,7 @@ private fun DialogHeaderPreview() {
             artists = listOf(),
             albumName = albumName,
             onAlbumNameChanged = { albumName = it },
-            cover = "",
+            cover = null,
             albumYear = "2007",
             onCoverSelected = {},
             onArtistSelect = {},

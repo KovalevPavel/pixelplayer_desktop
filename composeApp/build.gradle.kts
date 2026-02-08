@@ -29,6 +29,7 @@ kotlin {
             implementation(project(":core_credentials"))
             implementation(project(":core_storage"))
             implementation(project(":core_network"))
+            implementation(project(":core_tags"))
         }
         jvmMain.dependencies {
             implementation(compose.desktop.currentOs)
@@ -36,7 +37,6 @@ kotlin {
         }
     }
 }
-
 
 compose.desktop {
     application {

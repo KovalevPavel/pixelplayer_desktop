@@ -17,16 +17,20 @@ class UploadRepositoryImpl(
     private val client: HttpClient,
 ) : UploadRepository {
     override suspend fun uploadImage(path: String): String {
+        val bytes = File(path).readBytes()
+        return uploadImage(bytes = bytes)
+    }
+
+    override suspend fun uploadImage(bytes: ByteArray): String {
         return client.upload<String>(
             path = "upload/img",
         ) {
-            val file = File(path)
             append(
                 key = "img",
-                value = file.readBytes(),
+                value = bytes,
                 headers = headers {
                     this.append(
-                        HttpHeaders.ContentDisposition, "filename=\"${file.name}\""
+                        HttpHeaders.ContentDisposition, "filename=\"img\""
                     )
                 },
             )

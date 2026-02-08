@@ -11,6 +11,7 @@ datastore = "1.2.0"
 navigation = "2.9.1"
 filepicker = "3.1.0"
 coil = "3.3.0"
+tagger = "3.0.1"
 
 [libraries]
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
@@ -44,6 +45,9 @@ filepicker = { module = "com.darkrockstudios:mpfilepicker", version.ref = "filep
 # coil
 coil-compose = { module = "io.coil-kt.coil3:coil-compose", version.ref = "coil" }
 coil-network = { module = "io.coil-kt.coil3:coil-network-okhttp", version.ref = "coil" }
+
+#tagger
+audiotagger = { module = "net.jthink:jaudiotagger", version.ref = "tagger" }
 
 [plugins]
 composeHotReload = { id = "org.jetbrains.compose.hot-reload", version.ref = "composeHotReload" }

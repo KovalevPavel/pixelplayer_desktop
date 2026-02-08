@@ -51,7 +51,9 @@ import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.rememberDialogState
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kov_p.pixelplayer_desktop.api_tags.TagsManager
 import kov_p.pixelplayer_desktop.core_ui.EditDialog
 import kov_p.pixelplayer_desktop.core_ui.FullScreenLoader
 import kov_p.pixelplayer_desktop.core_ui.RegisterFilePicker
@@ -70,6 +72,7 @@ import kov_p.pixelplayer_desktop.feature_main_flow.albums.new_album.di.newAlbumM
 import kov_p.pixelplayer_desktop.feature_main_flow.albums.new_album.ui.components.DialogHeader
 import kov_p.pixelplayer_desktop.feature_main_flow.albums.new_album.ui.components.NewTrack
 import org.koin.compose.getKoin
+import org.koin.compose.koinInject
 
 internal typealias DisksList = List<List<NewAlbumAction.NewTrack>>
 
@@ -123,6 +126,9 @@ internal fun NewDialogContent(
     isLoaderVisible: Boolean,
     onAction: (NewAlbumAction) -> Unit,
 ) {
+    val scope = rememberCoroutineScope { Dispatchers.Default }
+    val manager = koinInject<TagsManager>()
+
     Column(
         modifier = Modifier.fillMaxSize().padding(all = 16.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp),
@@ -130,7 +136,7 @@ internal fun NewDialogContent(
     ) {
         var selectedArtist: AvailableArtistVs? by remember { mutableStateOf(null) }
         var newAlbumName by rememberSaveable { mutableStateOf("") }
-        var cover by rememberSaveable { mutableStateOf("") }
+        var cover by rememberSaveable { mutableStateOf<AlbumCover?>(null) }
         var year by rememberSaveable { mutableIntStateOf(0) }
 
         var trackPickerVisible by remember { mutableStateOf(false) }
@@ -138,7 +144,7 @@ internal fun NewDialogContent(
 
         val isButtonEnabled by remember {
             derivedStateOf {
-                selectedArtist != null && newAlbumName.isNotEmpty() && cover.isNotEmpty() && year > 0 && disks.musicIsReady()
+                selectedArtist != null && newAlbumName.isNotEmpty() && cover != null && year > 0 && disks.musicIsReady()
             }
         }
 
@@ -178,8 +184,30 @@ internal fun NewDialogContent(
                     disks = disks.toMutableList().apply { removeAt(it) }
                 },
                 onTracksSelected = { disk, tracks ->
-                    disks = disks.toMutableList().apply {
-                        this[disk] = this[disk].toMutableList().apply { addAll(tracks) }
+                    scope.launch {
+                        val tracksData = tracks.mapIndexed { index, track ->
+                            val meta = manager.getTrackMeta(track.path, index == 0)
+                            meta?.albumTitle?.let { alb ->
+                                if (newAlbumName.isEmpty()) {
+                                    newAlbumName = alb
+                                }
+                            }
+                            meta?.cover?.let {
+                                if (cover == null) {
+                                    cover = AlbumCover.Binary(bytes = it)
+                                }
+                            }
+                            meta?.year?.let {
+                                if (year == 0) {
+                                    year = it
+                                }
+                            }
+                            track.copy(title = meta?.title.orEmpty())
+                        }
+
+                        disks = disks.toMutableList().apply {
+                            this[disk] = this[disk].toMutableList().apply { addAll(tracksData) }
+                        }
                     }
                     trackPickerVisible = false
                 },
@@ -207,7 +235,7 @@ internal fun NewDialogContent(
                             NewAlbumAction.CreateAlbum(
                                 artistId = selectedArtist?.id ?: return@Button,
                                 albumName = newAlbumName,
-                                cover = cover,
+                                cover = cover ?: return@Button,
                                 year = year,
                                 disks = disks,
                             ),

@@ -64,9 +64,14 @@ withDirectory("login") {
     addModule("domain_login")
     addModule("feature_login")
 }
+
 withDirectory("main_flow") {
     addModule("api_main_flow")
     addModule("domain_main_flow")
     addModule("feature_main_flow")
 }
 
+withDirectory("tags") {
+    addModule("api_tags")
+    addModule("core_tags")
+}

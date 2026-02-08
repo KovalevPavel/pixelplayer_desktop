@@ -27,12 +27,13 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import coil3.compose.SubcomposeAsyncImage
 import kov_p.pixelplayer_desktop.core_ui.RegisterFilePicker
+import kov_p.pixelplayer_desktop.feature_main_flow.albums.new_album.ui.AlbumCover
 import java.io.File
 
 @Composable
 internal fun AlbumCover(
-    path: String,
-    onImageSelected: (String) -> Unit,
+    cover: AlbumCover?,
+    onImageSelected: (AlbumCover.FileSystem) -> Unit,
 ) {
     var isPickerVisible by remember { mutableStateOf(false) }
 
@@ -42,7 +43,19 @@ internal fun AlbumCover(
         shape = RoundedCornerShape(10.dp),
     ) {
         SubcomposeAsyncImage(
-            model = File(path),
+            model = when (cover) {
+                is AlbumCover.Binary -> {
+                    cover.bytes
+                }
+
+                is AlbumCover.FileSystem -> {
+                    File(cover.path)
+                }
+
+                null -> {
+                    // display nothing
+                }
+            },
             contentScale = ContentScale.Crop,
             contentDescription = null,
             loading = { AlbumPlaceHolder() },
@@ -62,12 +75,12 @@ internal fun AlbumCover(
 
     RegisterFilePicker(
         isVisible = isPickerVisible,
-        fileExtensions = listOf("jpg", "jpeg"),
+        fileExtensions = listOf("jpg", "jpeg", "png"),
         allowMultiple = false,
         onSelected = {
             isPickerVisible = false
             val path = it?.firstOrNull()?.path ?: return@RegisterFilePicker
-            onImageSelected(path)
+            onImageSelected(AlbumCover.FileSystem(path))
         },
     )
 }
@@ -97,6 +110,6 @@ private fun BoxScope.AlbumPlaceHolder(isError: Boolean = false) {
 @Composable
 private fun AlbumCoverPreview() {
     MaterialTheme {
-        AlbumCover(path = "", onImageSelected = {})
+        AlbumCover(cover = null, onImageSelected = {})
     }
 }

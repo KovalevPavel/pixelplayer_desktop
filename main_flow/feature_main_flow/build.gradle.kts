@@ -28,6 +28,7 @@ kotlin {
             implementation(project(":core_network"))
             implementation(project(":core_ui"))
             implementation(project(":domain_main_flow"))
+            implementation(project(":api_tags"))
         }
         jvmMain.dependencies {
             implementation(compose.desktop.currentOs)

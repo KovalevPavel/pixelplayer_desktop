@@ -117,20 +117,17 @@ private fun MainFlowComposable(
             .crossfade(true)
             .components {
                 add { chain ->
-                    val data = chain.request.data.toString()
-                    when {
-                        data.isEmpty()
-                                || data.startsWith("/")
-                            -> {
-                            chain.proceed()
-                        }
-
-                        else -> {
+                    when (chain.request.data) {
+                        is String -> {
                             val request = ImageRequest.Builder(chain.request)
                                 .httpHeaders(NetworkHeaders.Builder().set("Authorization", token).build())
                                 .data("$baseUrl/img/${chain.request.data}")
                                 .build()
                             chain.withRequest(request).proceed()
+                        }
+
+                        else -> {
+                            chain.proceed()
                         }
                     }
                 }

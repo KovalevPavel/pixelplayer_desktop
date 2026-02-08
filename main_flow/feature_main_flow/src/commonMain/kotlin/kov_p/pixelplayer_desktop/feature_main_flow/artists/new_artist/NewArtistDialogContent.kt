@@ -22,6 +22,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import kov_p.pixelplayer_desktop.core_ui.FullScreenLoader
+import kov_p.pixelplayer_desktop.feature_main_flow.albums.new_album.ui.AlbumCover
 import kov_p.pixelplayer_desktop.feature_main_flow.albums.new_album.ui.components.AlbumCover
 
 @Composable
@@ -31,10 +32,10 @@ internal fun NewArtistDialogContent(
     onAction: (NewArtistAction) -> Unit,
 ) {
     var newArtistName by rememberSaveable { mutableStateOf("") }
-    var photo by rememberSaveable { mutableStateOf("") }
+    var photo by rememberSaveable { mutableStateOf<AlbumCover.FileSystem?>(null) }
 
     val isButtonEnabled by remember {
-        derivedStateOf { newArtistName.isNotEmpty() && photo.isNotEmpty() }
+        derivedStateOf { newArtistName.isNotEmpty() && photo != null }
     }
 
     Row(
@@ -66,7 +67,7 @@ internal fun NewArtistDialogContent(
         ) {
 
             AlbumCover(
-                path = photo,
+                cover = photo,
                 onImageSelected = { photo = it },
             )
 
@@ -74,7 +75,7 @@ internal fun NewArtistDialogContent(
                 modifier = Modifier.fillMaxWidth(),
                 enabled = isButtonEnabled,
                 onClick = {
-                    onAction(NewArtistAction.CreateArtist(name = newArtistName, avatar = photo))
+                    onAction(NewArtistAction.CreateArtist(name = newArtistName, avatar = photo?.path.orEmpty()))
                 },
             ) {
                 Text(text = "Create artist")

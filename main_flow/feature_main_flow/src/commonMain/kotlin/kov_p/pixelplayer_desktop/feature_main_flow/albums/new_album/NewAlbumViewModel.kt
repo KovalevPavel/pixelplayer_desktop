@@ -18,6 +18,7 @@ import kov_p.pixelplayer_desktop.core_ui.launch
 import kov_p.pixelplayer_desktop.domain_main_flow.albums.AlbumsRepository
 import kov_p.pixelplayer_desktop.domain_main_flow.artists.ArtistsRepository
 import kov_p.pixelplayer_desktop.domain_main_flow.upload.UploadRepository
+import kov_p.pixelplayer_desktop.feature_main_flow.albums.new_album.ui.AlbumCover
 import kov_p.pixelplayer_desktop.feature_main_flow.albums.new_album.ui.DisksList
 import java.io.File
 import java.util.UUID
@@ -72,7 +73,7 @@ internal class NewAlbumViewModel(
     private fun createAlbum(
         artistId: String,
         albumName: String,
-        cover: String,
+        cover: AlbumCover,
         year: Int,
         disks: DisksList,
     ) {
@@ -138,12 +139,15 @@ internal class NewAlbumViewModel(
     }
 
     private suspend fun uploadAlbumMeta(
-        cover: String,
+        cover: AlbumCover,
         artistId: String,
         albumName: String,
         year: Int,
     ): String {
-        val coverUrl = uploadRepository.uploadImage(cover)
+        val coverUrl = when (cover) {
+            is AlbumCover.Binary -> uploadRepository.uploadImage(cover.bytes)
+            is AlbumCover.FileSystem -> uploadRepository.uploadImage(cover.path)
+        }
 
         return albumsRepository.createAlbum(
             artist = artistId,

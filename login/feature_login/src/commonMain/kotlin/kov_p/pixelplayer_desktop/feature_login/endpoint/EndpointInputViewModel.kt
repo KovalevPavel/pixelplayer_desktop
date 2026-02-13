@@ -26,7 +26,7 @@ internal class EndpointInputViewModel(
     private fun checkEndpoint(endpoint: String) {
         launch(
             body = {
-                val resultEndpoint = if (endpoint == "localhost") FALLBACK_LOCALHOST_ENDPOINT else endpoint
+                val resultEndpoint = buildServerEndpoint(endpoint)
                 EndpointInputEvent.ShowFullScreenLoader(show = true).let(::emitNewEvent)
                 delay(500)
                 if (loginRepository.checkEndpoint(endpoint = resultEndpoint)) {
@@ -39,6 +39,15 @@ internal class EndpointInputViewModel(
                 EndpointInputEvent.ShowFullScreenLoader(show = false).let(::emitNewEvent)
             }
         )
+    }
+
+    private fun buildServerEndpoint(rawEndpoint: String): String {
+        val withScheme = rawEndpoint.startsWith("http") || rawEndpoint.startsWith("https")
+        return when {
+            withScheme -> rawEndpoint
+            rawEndpoint.startsWith("localhost") -> FALLBACK_LOCALHOST_ENDPOINT
+            else -> "https://$rawEndpoint"
+        }
     }
 
     private fun emitNewEvent(newEvent: EndpointInputEvent) {

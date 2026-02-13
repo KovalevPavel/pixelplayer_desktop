@@ -43,6 +43,24 @@ suspend inline fun <reified T : Any> HttpClient.get(
 }
 
 suspend inline fun <reified T : Any> HttpClient.post(
+    url: String,
+    path: String,
+    parameters: Map<String, String>,
+): T {
+    val response = this.post {
+        url {
+            url.takeUnless(String::isEmpty)?.let {
+                url(it)
+            }
+            appendPathSegments("api", path)
+            parameters.forEach { (k, v) -> parameter(k, v) }
+        }
+    }
+
+    return mapResponse<T>(response = response)
+}
+
+suspend inline fun <reified T : Any> HttpClient.post(
     path: String = "",
     parameters: Map<String, String> = emptyMap(),
 ): T {

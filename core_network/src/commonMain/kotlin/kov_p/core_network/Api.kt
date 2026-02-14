@@ -1,6 +1,7 @@
 package kov_p.core_network
 
 import io.ktor.client.HttpClient
+import io.ktor.client.request.HttpRequestBuilder
 import io.ktor.client.request.forms.FormBuilder
 import io.ktor.client.request.forms.formData
 import io.ktor.client.request.forms.submitFormWithBinaryData
@@ -16,10 +17,7 @@ suspend inline fun <reified T : Any> HttpClient.get(
     params: Map<String, String> = emptyMap(),
 ): T {
     val response = this.get {
-        url {
-            appendPathSegments("api", path)
-            params.forEach { (k, v) -> parameter(k, v) }
-        }
+        buildApiUrl(path = path, params = params)
     }
 
     return mapResponse<T>(response = response)
@@ -31,12 +29,7 @@ suspend inline fun <reified T : Any> HttpClient.get(
     params: Map<String, String> = emptyMap(),
 ): T {
     val response = this.get {
-        url(url)
-
-        url {
-            appendPathSegments("api", path)
-            params.forEach { (k, v) -> parameter(k, v) }
-        }
+        buildApiUrl(baseUrl = url, path = path, params = params)
     }
 
     return mapResponse<T>(response = response)
@@ -48,13 +41,7 @@ suspend inline fun <reified T : Any> HttpClient.post(
     parameters: Map<String, String>,
 ): T {
     val response = this.post {
-        url {
-            url.takeUnless(String::isEmpty)?.let {
-                url(it)
-            }
-            appendPathSegments("api", path)
-            parameters.forEach { (k, v) -> parameter(k, v) }
-        }
+        buildApiUrl(baseUrl = url, path = path, params = parameters)
     }
 
     return mapResponse<T>(response = response)
@@ -65,10 +52,7 @@ suspend inline fun <reified T : Any> HttpClient.post(
     parameters: Map<String, String> = emptyMap(),
 ): T {
     val response = this.post {
-        url {
-            appendPathSegments("api", path)
-            parameters.forEach { (k, v) -> parameter(k, v) }
-        }
+        buildApiUrl(path = path, params = parameters)
     }
 
     return mapResponse<T>(response = response)
@@ -81,7 +65,7 @@ suspend inline fun <reified T : Any> HttpClient.upload(
     val response = this.submitFormWithBinaryData(
         formData = formData { form() },
     ) {
-        url { appendPathSegments("api", path) }
+        buildApiUrl(path = path)
     }
 
     return mapResponse<T>(response = response)
@@ -93,13 +77,23 @@ suspend inline fun <reified T : Any> HttpClient.post(
     payload: String,
 ): T {
     val response = this.post {
-        url {
-            appendPathSegments("api", path)
-            parameters.forEach { (k, v) -> parameter(k, v) }
-        }
+        buildApiUrl(path = path, params = parameters)
 
         setBody(payload)
     }
 
     return mapResponse<T>(response = response)
+}
+
+@PublishedApi
+internal fun HttpRequestBuilder.buildApiUrl(
+    baseUrl: String? = null,
+    path: String = "",
+    params: Map<String, String> = emptyMap(),
+) {
+    url {
+        baseUrl?.takeUnless(String::isEmpty)?.let { url(it) }
+        appendPathSegments("api", path)
+        params.forEach { (key, value) -> parameter(key, value) }
+    }
 }

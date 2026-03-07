@@ -58,6 +58,7 @@ import kov_p.pixelplayer_desktop.core_ui.EditDialog
 import kov_p.pixelplayer_desktop.core_ui.FullScreenLoader
 import kov_p.pixelplayer_desktop.core_ui.RegisterFilePicker
 import kov_p.pixelplayer_desktop.core_ui.collectWithLifecycle
+import kov_p.pixelplayer_desktop.core_ui.cover.CoverData
 import kov_p.pixelplayer_desktop.core_ui.drag_drop.DragDropState
 import kov_p.pixelplayer_desktop.core_ui.drag_drop.DraggableItem
 import kov_p.pixelplayer_desktop.core_ui.drag_drop.dragContainer
@@ -139,7 +140,7 @@ internal fun NewDialogContent(
     ) {
         var selectedArtist: AvailableArtistVs? by remember { mutableStateOf(null) }
         var newAlbumName by rememberSaveable { mutableStateOf("") }
-        var cover by rememberSaveable { mutableStateOf<AlbumCover?>(null) }
+        var cover by rememberSaveable { mutableStateOf<CoverData?>(null) }
         var year by rememberSaveable { mutableIntStateOf(0) }
 
         var trackPickerVisible by remember { mutableStateOf(false) }
@@ -197,7 +198,7 @@ internal fun NewDialogContent(
                             }
                             meta?.cover?.let {
                                 if (cover == null) {
-                                    cover = AlbumCover.Binary(bytes = it)
+                                    cover = CoverData.Binary(bytes = it)
                                 }
                             }
                             meta?.year?.let {

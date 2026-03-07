@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -125,7 +126,9 @@ private fun MainFlowComposable(
     onLogout: () -> Unit,
 ) {
     setSingletonImageLoaderFactory { context ->
-        ImageLoader.Builder(context).crossfade(true).components {
+        ImageLoader.Builder(context)
+            .crossfade(true)
+            .components {
                 add { chain ->
                     when (chain.request.data) {
                         is String -> {
@@ -140,7 +143,8 @@ private fun MainFlowComposable(
                         }
                     }
                 }
-            }.build()
+            }
+            .build()
     }
     val koin = getKoin()
     val scope = remember {
@@ -156,9 +160,9 @@ private fun MainFlowComposable(
     val mainFlowNavController = rememberNavController()
     var activeTab by rememberSaveable { mutableStateOf(MainFlowScreen.entries.first()) }
 
-    Row(modifier = Modifier.fillMaxSize().padding(all = 8.dp)) {
+    Row(modifier = Modifier.fillMaxSize()) {
         Column(
-            modifier = Modifier.fillMaxHeight().weight(1f),
+            modifier = Modifier.fillMaxHeight().weight(1f).padding(all = 8.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
             MainFlowScreen.entries.forEach { screen ->
@@ -196,11 +200,18 @@ private fun MainFlowComposable(
             }
         }
 
+        Spacer(
+            modifier = Modifier
+                .background(color = MaterialTheme.colorScheme.error)
+                .fillMaxHeight()
+                .width(1.dp),
+        )
+
         CompositionLocalProvider(
             LocalMainScope provides scope,
         ) {
             NavHost(
-                modifier = Modifier.fillMaxHeight().weight(4f),
+                modifier = Modifier.fillMaxHeight().weight(4f).padding(all = 8.dp),
                 navController = mainFlowNavController,
                 startDestination = MainFlowScreen.entries.first().name,
             ) {

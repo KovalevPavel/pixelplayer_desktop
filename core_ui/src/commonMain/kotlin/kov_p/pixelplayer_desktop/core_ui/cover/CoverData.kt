@@ -1,7 +1,7 @@
-package kov_p.pixelplayer_desktop.feature_main_flow.albums.new_album.ui
+package kov_p.pixelplayer_desktop.core_ui.cover
 
-sealed interface AlbumCover {
-    data class Binary(val bytes: ByteArray) : AlbumCover {
+sealed interface CoverData {
+    data class Binary(val bytes: ByteArray) : CoverData {
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
             if (javaClass != other?.javaClass) return false
@@ -16,5 +16,5 @@ sealed interface AlbumCover {
         }
     }
 
-    data class FileSystem(val path: String) : AlbumCover
+    data class FileSystem(val path: String) : CoverData
 }

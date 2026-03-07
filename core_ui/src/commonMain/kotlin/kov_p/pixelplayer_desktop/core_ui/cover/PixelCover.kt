@@ -1,7 +1,6 @@
-package kov_p.pixelplayer_desktop.feature_main_flow.albums.new_album.ui.components
+package kov_p.pixelplayer_desktop.core_ui.cover
 
 import androidx.compose.desktop.ui.tooling.preview.Preview
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.fillMaxSize
@@ -27,13 +26,15 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import coil3.compose.SubcomposeAsyncImage
 import kov_p.pixelplayer_desktop.core_ui.RegisterFilePicker
-import kov_p.pixelplayer_desktop.feature_main_flow.albums.new_album.ui.AlbumCover
+import kov_p.pixelplayer_desktop.core_ui.theme.PixelplayerTheme
 import java.io.File
 
+private val supportedImagesExtensions = listOf("jpg", "jpeg", "png")
+
 @Composable
-internal fun AlbumCover(
-    cover: AlbumCover?,
-    onImageSelected: (AlbumCover.FileSystem) -> Unit,
+fun PixelCover(
+    cover: CoverData?,
+    onImageSelected: (CoverData.FileSystem) -> Unit,
 ) {
     var isPickerVisible by remember { mutableStateOf(false) }
 
@@ -44,52 +45,54 @@ internal fun AlbumCover(
     ) {
         SubcomposeAsyncImage(
             model = when (cover) {
-                is AlbumCover.Binary -> {
+                is CoverData.Binary -> {
                     cover.bytes
                 }
 
-                is AlbumCover.FileSystem -> {
+                is CoverData.FileSystem -> {
                     File(cover.path)
                 }
 
                 null -> {
-                    // display nothing
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        Text(
+                            text = "Click to select",
+                            textAlign = TextAlign.Center,
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = Color.White,
+                        )
+                    }
                 }
             },
             contentScale = ContentScale.Crop,
             contentDescription = null,
-            loading = { AlbumPlaceHolder() },
-            error = { AlbumPlaceHolder(isError = true) },
+            loading = { Placeholder() },
+            error = {
+                if (cover != null) {
+                    Placeholder(isError = true)
+                }
+            },
         )
-        Box(
-            modifier = Modifier.fillMaxSize().background(color = Color.Black.copy(alpha = .2f)),
-            contentAlignment = Alignment.Center,
-        ) {
-            Text(
-                text = "Click to select",
-                textAlign = TextAlign.Center,
-                color = Color.White,
-            )
-        }
     }
 
     RegisterFilePicker(
         isVisible = isPickerVisible,
-        fileExtensions = listOf("jpg", "jpeg", "png"),
+        fileExtensions = supportedImagesExtensions,
         allowMultiple = false,
         onSelected = {
             isPickerVisible = false
             val path = it?.firstOrNull()?.path ?: return@RegisterFilePicker
-            onImageSelected(AlbumCover.FileSystem(path))
+            onImageSelected(CoverData.FileSystem(path))
         },
     )
 }
 
 @Composable
-private fun BoxScope.AlbumPlaceHolder(isError: Boolean = false) {
-    Box(
-        modifier = Modifier.matchParentSize().background(color = Color.LightGray),
-    ) {
+private fun BoxScope.Placeholder(isError: Boolean = false) {
+    Box(modifier = Modifier.matchParentSize()) {
         val icon = remember(isError) {
             if (isError) {
                 Icons.Default.Error
@@ -101,15 +104,14 @@ private fun BoxScope.AlbumPlaceHolder(isError: Boolean = false) {
             modifier = Modifier.size(48.dp).align(Alignment.Center),
             imageVector = icon,
             contentDescription = null,
-            tint = Color.Gray,
         )
     }
 }
 
 @Preview
 @Composable
-private fun AlbumCoverPreview() {
-    MaterialTheme {
-        AlbumCover(cover = null, onImageSelected = {})
+private fun CoverPreview() {
+    PixelplayerTheme {
+        PixelCover(cover = null, onImageSelected = {})
     }
 }

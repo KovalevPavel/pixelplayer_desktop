@@ -30,6 +30,7 @@ kotlin {
             implementation(project(":core_storage"))
             implementation(project(":core_network"))
             implementation(project(":core_tags"))
+            implementation(project(":core_ui"))
         }
         jvmMain.dependencies {
             implementation(compose.desktop.currentOs)

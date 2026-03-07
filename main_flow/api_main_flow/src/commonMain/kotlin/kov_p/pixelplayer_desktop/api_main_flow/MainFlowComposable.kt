@@ -1,15 +1,19 @@
 package kov_p.pixelplayer_desktop.api_main_flow
 
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.material.Text
-import androidx.compose.material.TextButton
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
@@ -19,6 +23,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.NavHost
@@ -77,19 +82,26 @@ fun NavGraphBuilder.registerMainFlow(
             }
         }
 
-        MainFlowComposableWrapper(
-            creds = creds,
-            onLogout = { MainFlowAction.Logout.let(mainViewModel::handleAction) },
-        )
+        Box(modifier = Modifier.fillMaxSize().background(color = MaterialTheme.colorScheme.background)) {
+            MainFlowComposableWrapper(
+                modifier = Modifier.matchParentSize(),
+                creds = creds,
+                onLogout = { MainFlowAction.Logout.let(mainViewModel::handleAction) },
+            )
+        }
     }
 }
 
 @Composable
 private fun MainFlowComposableWrapper(
+    modifier: Modifier,
     creds: CredsWrapper?,
     onLogout: () -> Unit,
 ) {
-    AnimatedContent(targetState = creds) { c ->
+    AnimatedContent(
+        modifier = modifier,
+        targetState = creds,
+    ) { c ->
         when (c) {
             null -> {
                 FullScreenLoader()
@@ -113,16 +125,13 @@ private fun MainFlowComposable(
     onLogout: () -> Unit,
 ) {
     setSingletonImageLoaderFactory { context ->
-        ImageLoader.Builder(context)
-            .crossfade(true)
-            .components {
+        ImageLoader.Builder(context).crossfade(true).components {
                 add { chain ->
                     when (chain.request.data) {
                         is String -> {
                             val request = ImageRequest.Builder(chain.request)
                                 .httpHeaders(NetworkHeaders.Builder().set("Authorization", token).build())
-                                .data("$baseUrl/img/${chain.request.data}")
-                                .build()
+                                .data("$baseUrl/img/${chain.request.data}").build()
                             chain.withRequest(request).proceed()
                         }
 
@@ -131,8 +140,7 @@ private fun MainFlowComposable(
                         }
                     }
                 }
-            }
-            .build()
+            }.build()
     }
     val koin = getKoin()
     val scope = remember {
@@ -148,7 +156,7 @@ private fun MainFlowComposable(
     val mainFlowNavController = rememberNavController()
     var activeTab by rememberSaveable { mutableStateOf(MainFlowScreen.entries.first()) }
 
-    Row(modifier = Modifier.fillMaxSize()) {
+    Row(modifier = Modifier.fillMaxSize().padding(all = 8.dp)) {
         Column(
             modifier = Modifier.fillMaxHeight().weight(1f),
             verticalArrangement = Arrangement.spacedBy(12.dp),
@@ -157,6 +165,7 @@ private fun MainFlowComposable(
                 TextButton(
                     enabled = activeTab != screen,
                     modifier = Modifier.fillMaxWidth(),
+                    shape = RectangleShape,
                     onClick = {
                         mainFlowNavController.navigate(screen.name) {
                             popUpTo(0) { inclusive = true }
@@ -164,7 +173,11 @@ private fun MainFlowComposable(
                         activeTab = screen
                     },
                 ) {
-                    Text(screen.name)
+                    Text(
+                        text = screen.name,
+                        style = MaterialTheme.typography.titleMedium,
+                        color = if (activeTab != screen) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.primary,
+                    )
                 }
             }
 
@@ -172,9 +185,14 @@ private fun MainFlowComposable(
 
             TextButton(
                 modifier = Modifier.fillMaxWidth(),
+                shape = RectangleShape,
                 onClick = onLogout,
             ) {
-                Text("Logout")
+                Text(
+                    text = "Logout",
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.onSurface,
+                )
             }
         }
 

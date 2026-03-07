@@ -2,7 +2,9 @@ package kov_p.pixelplayer_desktop.feature_login.init
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
@@ -44,10 +46,14 @@ fun InitComposable(
         }
     }
 
-    Box(
+    Scaffold(
         modifier = Modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center,
-    ) {
-        CircularProgressIndicator()
+    ) { paddingValues ->
+        Box(
+            modifier = Modifier.fillMaxSize().padding(paddingValues),
+            contentAlignment = Alignment.Center,
+        ) {
+            CircularProgressIndicator()
+        }
     }
 }

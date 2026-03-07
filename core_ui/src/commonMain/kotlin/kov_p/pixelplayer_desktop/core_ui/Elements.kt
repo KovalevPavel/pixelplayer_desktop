@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -22,9 +23,11 @@ import com.darkrockstudios.libraries.mpfilepicker.MPFile
 import com.darkrockstudios.libraries.mpfilepicker.MultipleFilePicker
 
 @Composable
-fun FullScreenLoader() {
+fun FullScreenLoader(
+    backgroundColor: Color = MaterialTheme.colorScheme.scrim,
+) {
     Box(
-        modifier = Modifier.disableUserInput().fillMaxSize().background(color = Color.Black.copy(alpha = .2f)),
+        modifier = Modifier.disableUserInput().fillMaxSize().background(color = backgroundColor),
         contentAlignment = Alignment.Center,
     ) {
         CircularProgressIndicator()

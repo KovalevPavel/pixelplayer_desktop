@@ -6,9 +6,11 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
@@ -55,54 +57,58 @@ fun CredentialsInputComposable(
         }
     }
 
-    Box(
+    Scaffold(
         modifier = Modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center,
-    ) {
-        var login by rememberSaveable { mutableStateOf("") }
-        var password by rememberSaveable { mutableStateOf("") }
-
-        val isButtonEnabled by remember {
-            derivedStateOf { login.isNotEmpty() && password.isNotEmpty() }
-        }
-
-        Column(
-            modifier = Modifier.width(IntrinsicSize.Min),
-            verticalArrangement = Arrangement.spacedBy(12.dp),
+    ) { paddingValues ->
+        Box(
+            modifier = Modifier.fillMaxSize().padding(paddingValues),
+            contentAlignment = Alignment.Center,
         ) {
-            TextField(
-                value = login,
-                onValueChange = { login = it },
-                placeholder = { Text("login") },
-                singleLine = true,
-            )
+            var login by rememberSaveable { mutableStateOf("") }
+            var password by rememberSaveable { mutableStateOf("") }
 
-            TextField(
-                value = password,
-                onValueChange = { password = it },
-                placeholder = { Text("password") },
-                singleLine = true,
-                visualTransformation = PasswordVisualTransformation(),
-            )
-
-            Button(
-                modifier = Modifier.fillMaxWidth(),
-                enabled = isButtonEnabled,
-                onClick = {
-                    CredentialsInputAction.Login(login = login, password = password)
-                        .let(viewModel::handleAction)
-                },
-            ) {
-                Text("Login")
+            val isButtonEnabled by remember {
+                derivedStateOf { login.isNotEmpty() && password.isNotEmpty() }
             }
 
-            TextButton(
-                modifier = Modifier.fillMaxWidth(),
-                onClick = {
-                    CredentialsInputAction.ChangeEndpoint.let(viewModel::handleAction)
-                },
+            Column(
+                modifier = Modifier.width(IntrinsicSize.Min),
+                verticalArrangement = Arrangement.spacedBy(12.dp),
             ) {
-                Text(text = "Change endpoint")
+                TextField(
+                    value = login,
+                    onValueChange = { login = it },
+                    placeholder = { Text("login") },
+                    singleLine = true,
+                )
+
+                TextField(
+                    value = password,
+                    onValueChange = { password = it },
+                    placeholder = { Text("password") },
+                    singleLine = true,
+                    visualTransformation = PasswordVisualTransformation(),
+                )
+
+                Button(
+                    modifier = Modifier.fillMaxWidth(),
+                    enabled = isButtonEnabled,
+                    onClick = {
+                        CredentialsInputAction.Login(login = login, password = password)
+                            .let(viewModel::handleAction)
+                    },
+                ) {
+                    Text("Login")
+                }
+
+                TextButton(
+                    modifier = Modifier.fillMaxWidth(),
+                    onClick = {
+                        CredentialsInputAction.ChangeEndpoint.let(viewModel::handleAction)
+                    },
+                ) {
+                    Text(text = "Change endpoint")
+                }
             }
         }
     }

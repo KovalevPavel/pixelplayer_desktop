@@ -130,7 +130,10 @@ internal fun NewDialogContent(
     val manager = koinInject<TagsManager>()
 
     Column(
-        modifier = Modifier.fillMaxSize().padding(all = 16.dp),
+        modifier = Modifier
+            .background(color = MaterialTheme.colorScheme.background)
+            .fillMaxSize()
+            .padding(all = 16.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp),
         horizontalAlignment = Alignment.Start,
     ) {

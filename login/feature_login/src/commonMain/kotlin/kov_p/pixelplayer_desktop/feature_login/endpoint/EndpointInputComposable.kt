@@ -6,10 +6,12 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
@@ -35,9 +37,6 @@ import org.koin.core.annotation.KoinExperimentalAPI
 fun EndpointInputComposable(
     navController: NavController,
 ) {
-//    rememberKoinModules { listOf(endpointInputModule) }
-//    val viewModel = koinViewModel<EndpointInputViewModel>()
-
     val scope = LocalLoginScope.current
 
     val viewModel: EndpointInputViewModel = remember { scope.get() }
@@ -60,39 +59,43 @@ fun EndpointInputComposable(
         }
     }
 
-    Box(
+    Scaffold(
         modifier = Modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center,
-    ) {
-        Column(
-            modifier = Modifier.width(IntrinsicSize.Min),
-            verticalArrangement = Arrangement.spacedBy(24.dp),
+    ) { paddingValues ->
+        Box(
+            modifier = Modifier.fillMaxSize().padding(paddingValues),
+            contentAlignment = Alignment.Center,
         ) {
-            TextField(
-                value = endpoint,
-                onValueChange = { endpoint = it },
-                keyboardOptions = KeyboardOptions(
-                    imeAction = ImeAction.Go,
-                ),
-                keyboardActions = KeyboardActions(
-                    onGo = {
-                        if (isButtonEnabled) {
-                            EndpointInputAction.CheckEndpoint(endpoint).let(viewModel::handleAction)
-                        }
-                    },
-                ),
-                singleLine = true,
-                placeholder = { Text(text = "https://") },
-            )
-
-            Button(
-                modifier = Modifier.fillMaxWidth(),
-                enabled = isButtonEnabled,
-                onClick = {
-                    EndpointInputAction.CheckEndpoint(endpoint).let(viewModel::handleAction)
-                },
+            Column(
+                modifier = Modifier.width(IntrinsicSize.Min),
+                verticalArrangement = Arrangement.spacedBy(24.dp),
             ) {
-                Text("Next")
+                TextField(
+                    value = endpoint,
+                    onValueChange = { endpoint = it },
+                    keyboardOptions = KeyboardOptions(
+                        imeAction = ImeAction.Go,
+                    ),
+                    keyboardActions = KeyboardActions(
+                        onGo = {
+                            if (isButtonEnabled) {
+                                EndpointInputAction.CheckEndpoint(endpoint).let(viewModel::handleAction)
+                            }
+                        },
+                    ),
+                    singleLine = true,
+                    placeholder = { Text(text = "https://") },
+                )
+
+                Button(
+                    modifier = Modifier.fillMaxWidth(),
+                    enabled = isButtonEnabled,
+                    onClick = {
+                        EndpointInputAction.CheckEndpoint(endpoint).let(viewModel::handleAction)
+                    },
+                ) {
+                    Text("Next")
+                }
             }
         }
     }

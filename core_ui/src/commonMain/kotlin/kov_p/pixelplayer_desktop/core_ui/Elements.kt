@@ -32,7 +32,7 @@ import com.darkrockstudios.libraries.mpfilepicker.MultipleFilePicker
 
 @Composable
 fun FullScreenLoader(
-    backgroundColor: Color = MaterialTheme.colorScheme.scrim.copy(alpha = .2f),
+    backgroundColor: Color = MaterialTheme.colorScheme.scrim.copy(alpha = .8f),
 ) {
     Box(
         modifier = Modifier.disableUserInput().fillMaxSize().background(color = backgroundColor),

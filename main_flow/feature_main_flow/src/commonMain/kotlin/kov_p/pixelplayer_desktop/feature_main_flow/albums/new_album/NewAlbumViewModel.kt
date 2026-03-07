@@ -4,6 +4,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import io.ktor.utils.io.jvm.javaio.toByteReadChannel
 import io.ktor.utils.io.readFully
 import kotlinx.coroutines.SupervisorJob
@@ -11,6 +12,8 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
@@ -25,6 +28,7 @@ import java.util.UUID
 import kotlin.io.deleteRecursively
 import kotlin.io.inputStream
 import kotlin.io.outputStream
+import kotlin.io.println
 import kotlin.use
 
 internal class NewAlbumViewModel(
@@ -37,6 +41,8 @@ internal class NewAlbumViewModel(
 
     private val _eventsFlow = MutableSharedFlow<NewAlbumEvent>()
     val eventsFlow: Flow<NewAlbumEvent> = _eventsFlow
+
+    private val mutex = Mutex()
 
     init {
         NewAlbumAction.LoadAvailableArtists.let(::handleAction)
@@ -65,7 +71,7 @@ internal class NewAlbumViewModel(
             body = {
                 val artists = artistsRepository.getAllArtists().map { AvailableArtistVs(id = it.id, name = it.name) }
 
-                state = state.copy(artists = artists, isLoaderVisible = false)
+                state = state.copy(artists = artists, progress = NewAlbumState.Progress.None)
             },
         )
     }
@@ -81,7 +87,11 @@ internal class NewAlbumViewModel(
         launch(
             context = SupervisorJob(),
             body = {
-                state = state.copy(isLoaderVisible = true)
+                val progress = NewAlbumState.Progress.Linear(
+                    completed = 0,
+                    total = disks.flatten().size,
+                )
+                state = state.copy(progress = progress)
                 val albumId = uploadAlbumMeta(cover = cover, artistId = artistId, albumName = albumName, year = year)
 
                 disks.flatMapIndexed { diskNum, disk ->
@@ -105,6 +115,12 @@ internal class NewAlbumViewModel(
                                 .joinAll()
 
                             uploadRepository.finishUpload(uploadId = uploadId, meta = Json.encodeToString(dto))
+                            mutex.withLock {
+                                val newProgress = (state.progress as? NewAlbumState.Progress.Linear)
+                                    ?.let { it.copy(completed = it.completed + 1) }
+                                    ?: return@withLock
+                                state = state.copy(progress = newProgress)
+                            }
                         }
                     }
                     .joinAll()
@@ -112,7 +128,14 @@ internal class NewAlbumViewModel(
                 _eventsFlow.emit(NewAlbumEvent.CloseDialog)
             },
             onFailure = {
-                state = state.copy(isLoaderVisible = false, errorMsg = it.message)
+                state = state.copy(progress = NewAlbumState.Progress.None)
+                NewAlbumEvent.ShowError(message = it.message.orEmpty()).let(::emitNewEvent)
+                println(
+                    """
+                    Error while creation:
+                    ${it.message}
+                """.trimIndent(),
+                )
             },
             finally = {
                 removeUploadTempDir(albumId = albumUploadId)
@@ -198,6 +221,10 @@ internal class NewAlbumViewModel(
         } while (offset < bytes)
 
         return result
+    }
+
+    private fun emitNewEvent(newEvent: NewAlbumEvent) {
+        viewModelScope.launch { _eventsFlow.emit(newEvent) }
     }
 
     companion object {

@@ -5,6 +5,8 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -14,6 +16,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
@@ -21,15 +24,21 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Remove
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.PrimaryScrollableTabRow
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
 import androidx.compose.material3.minimumInteractiveComponentSize
@@ -59,14 +68,17 @@ import kov_p.pixelplayer_desktop.core_ui.FullScreenLoader
 import kov_p.pixelplayer_desktop.core_ui.RegisterFilePicker
 import kov_p.pixelplayer_desktop.core_ui.collectWithLifecycle
 import kov_p.pixelplayer_desktop.core_ui.cover.CoverData
+import kov_p.pixelplayer_desktop.core_ui.disableUserInput
 import kov_p.pixelplayer_desktop.core_ui.drag_drop.DragDropState
 import kov_p.pixelplayer_desktop.core_ui.drag_drop.DraggableItem
 import kov_p.pixelplayer_desktop.core_ui.drag_drop.dragContainer
 import kov_p.pixelplayer_desktop.core_ui.drag_drop.rememberDragDropState
+import kov_p.pixelplayer_desktop.core_ui.theme.PixelplayerTheme
 import kov_p.pixelplayer_desktop.feature_main_flow._di.LocalMainScope
 import kov_p.pixelplayer_desktop.feature_main_flow.albums.new_album.AvailableArtistVs
 import kov_p.pixelplayer_desktop.feature_main_flow.albums.new_album.NewAlbumAction
 import kov_p.pixelplayer_desktop.feature_main_flow.albums.new_album.NewAlbumEvent
+import kov_p.pixelplayer_desktop.feature_main_flow.albums.new_album.NewAlbumState
 import kov_p.pixelplayer_desktop.feature_main_flow.albums.new_album.NewAlbumViewModel
 import kov_p.pixelplayer_desktop.feature_main_flow.albums.new_album.di.NewAlbumScope
 import kov_p.pixelplayer_desktop.feature_main_flow.albums.new_album.di.newAlbumModule
@@ -99,9 +111,16 @@ internal fun NewDialog(
         onDispose { scope.close() }
     }
 
+    val snackHost = remember { SnackbarHostState() }
+
     viewModel.eventsFlow.collectWithLifecycle { event ->
         when (event) {
             is NewAlbumEvent.CloseDialog -> {
+                removeFromComposition(true)
+            }
+
+            is NewAlbumEvent.ShowError -> {
+                snackHost.showSnackbar(message = event.message)
                 removeFromComposition(true)
             }
         }
@@ -113,26 +132,32 @@ internal fun NewDialog(
         resizable = true,
         onClose = { removeFromComposition(false) },
     ) {
-        NewDialogContent(
-            artists = viewModel.state.artists,
-            isLoaderVisible = viewModel.state.isLoaderVisible,
-            onAction = viewModel::handleAction,
-        )
+        Scaffold(
+            modifier = Modifier.fillMaxSize(),
+            snackbarHost = { SnackbarHost(hostState = snackHost) }
+        ) { paddingValues ->
+            NewDialogContent(
+                modifier = Modifier.fillMaxSize().padding(paddingValues),
+                artists = viewModel.state.artists,
+                progress = viewModel.state.progress,
+                onAction = viewModel::handleAction,
+            )
+        }
     }
 }
 
 @Composable
 internal fun NewDialogContent(
+    modifier: Modifier = Modifier,
     artists: List<AvailableArtistVs>,
-    isLoaderVisible: Boolean,
+    progress: NewAlbumState.Progress,
     onAction: (NewAlbumAction) -> Unit,
 ) {
     val scope = rememberCoroutineScope { Dispatchers.Default }
     val manager = koinInject<TagsManager>()
 
     Column(
-        modifier = Modifier
-            .background(color = MaterialTheme.colorScheme.background)
+        modifier = modifier
             .fillMaxSize()
             .padding(all = 16.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp),
@@ -259,9 +284,7 @@ internal fun NewDialogContent(
         }
     }
 
-    if (isLoaderVisible) {
-        FullScreenLoader()
-    }
+    Progress(progress = progress)
 }
 
 @Composable
@@ -394,10 +417,13 @@ internal fun TrackList(
                 content = { isDragging ->
                     Card(
                         modifier = Modifier.scale(scale = if (isDragging) 1.04f else 1f),
-                        border = BorderStroke(width = 1.dp, color = Color.LightGray),
+                        border = BorderStroke(width = 1.dp, color = MaterialTheme.colorScheme.surfaceVariant),
+                        colors = CardDefaults.cardColors(
+                            containerColor = MaterialTheme.colorScheme.surface,
+                        ),
                     ) {
                         NewTrack(
-                            modifier = Modifier.background(color = Color.White).padding(all = 16.dp),
+                            modifier = Modifier.padding(all = 16.dp),
                             position = i + 1,
                             viewState = track,
                             onTitleChanged = { onChanged(i, track.copy(title = it)) },
@@ -423,14 +449,59 @@ internal fun TrackList(
     )
 }
 
+@Composable
+private fun Progress(progress: NewAlbumState.Progress) {
+    when (progress) {
+        is NewAlbumState.Progress.Circular -> FullScreenLoader()
+        is NewAlbumState.Progress.Linear -> LinearProgress(completed = progress.completed, total = progress.total)
+        is NewAlbumState.Progress.None -> return
+    }
+}
+
+@Composable
+private fun LinearProgress(
+    completed: Int,
+    total: Int,
+) {
+    BoxWithConstraints(
+        modifier = Modifier.disableUserInput()
+            .fillMaxSize()
+            .background(color = MaterialTheme.colorScheme.scrim.copy(alpha = .8f)),
+        contentAlignment = Alignment.Center,
+    ) {
+        Column(
+            modifier = Modifier
+                .background(
+                    color = MaterialTheme.colorScheme.surface,
+                    shape = RoundedCornerShape(size = 10.dp),
+                )
+                .align(Alignment.Center)
+                .width(maxWidth / 2)
+                .padding(horizontal = 16.dp, vertical = 24.dp)
+                .wrapContentHeight(),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+            LinearProgressIndicator(
+                progress = { runCatching { completed / total.toFloat() }.getOrElse { 0f } },
+            )
+            Text(
+                text = "$completed / $total",
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.onSurface,
+            )
+        }
+    }
+}
+
 @Preview
 @Composable
 private fun NewDialogPreview() {
-    MaterialTheme {
-        NewDialogContent(
-            artists = listOf(),
-            isLoaderVisible = false,
-            onAction = {},
-        )
+    PixelplayerTheme {
+        Box(
+            modifier = Modifier.fillMaxSize(),
+        ) {
+            LinearProgress(completed = 2, total = 8)
+        }
     }
 }

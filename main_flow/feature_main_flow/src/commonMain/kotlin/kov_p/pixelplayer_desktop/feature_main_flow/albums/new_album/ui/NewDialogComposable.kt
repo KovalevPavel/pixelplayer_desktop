@@ -303,7 +303,10 @@ internal fun RowScope.DiskPager(
                         modifier = Modifier.minimumInteractiveComponentSize(),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Text(text = "Disk ${pageIndex + 1}")
+                        Text(
+                            text = "Disk ${pageIndex + 1}",
+                            style = MaterialTheme.typography.bodyMedium,
+                        )
                         if (pagerState.pageCount > 1) {
                             IconButton(
                                 onClick = {

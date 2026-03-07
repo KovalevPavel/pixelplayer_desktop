@@ -46,11 +46,7 @@ fun AlbumsComposable() {
     Scaffold(
         floatingActionButton = {
             if (state is AlbumsState.Data) {
-                FloatingActionButton(
-                    onClick = {
-                        newDialog = true
-                    },
-                ) {
+                FloatingActionButton(onClick = { newDialog = true }) {
                     Icon(imageVector = Icons.Default.Add, contentDescription = null)
                 }
             }

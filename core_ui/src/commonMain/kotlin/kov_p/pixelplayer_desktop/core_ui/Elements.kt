@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.text.KeyboardActions
@@ -92,13 +93,15 @@ fun RegisterFilePicker(
 fun PixelInputField(
     modifier: Modifier = Modifier,
     value: String,
-    onValueChanged: (String) -> Unit,
+    onValueChange: (String) -> Unit,
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
     keyboardActions: KeyboardActions = KeyboardActions.Default,
     visualTransformation: VisualTransformation = VisualTransformation.None,
     singleLine: Boolean = true,
+    readonly: Boolean = false,
     placeholder: String? = null,
     error: (() -> String?)? = null,
+    trailingIcon: (@Composable () -> Unit)? = null,
 ) {
     Column(
         modifier = modifier,
@@ -106,9 +109,11 @@ fun PixelInputField(
         horizontalAlignment = Alignment.Start,
     ) {
         OutlinedTextField(
+            modifier = Modifier.fillMaxWidth(),
             value = value,
             textStyle = MaterialTheme.typography.bodyMedium,
-            onValueChange = onValueChanged,
+            onValueChange = onValueChange,
+            readOnly = readonly,
             keyboardOptions = keyboardOptions,
             keyboardActions = keyboardActions,
             singleLine = singleLine,
@@ -123,10 +128,12 @@ fun PixelInputField(
                 }
             },
             isError = error?.invoke().orEmpty() != "",
+            trailingIcon = trailingIcon,
         )
 
         error?.let { errorProvider ->
             Text(
+                modifier = Modifier.fillMaxWidth(),
                 text = errorProvider().orEmpty(),
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,

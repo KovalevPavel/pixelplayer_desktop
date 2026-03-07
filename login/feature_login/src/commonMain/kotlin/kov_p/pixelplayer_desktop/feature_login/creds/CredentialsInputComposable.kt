@@ -84,7 +84,7 @@ fun CredentialsInputComposable(
             ) {
                 PixelInputField(
                     value = login,
-                    onValueChanged = {
+                    onValueChange = {
                         login = it
                         error = null
                     },
@@ -93,7 +93,7 @@ fun CredentialsInputComposable(
 
                 PixelInputField(
                     value = password,
-                    onValueChanged = {
+                    onValueChange = {
                         password = it
                         error = null
                     },

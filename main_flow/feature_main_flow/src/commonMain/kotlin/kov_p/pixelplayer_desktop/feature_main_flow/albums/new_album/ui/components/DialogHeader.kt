@@ -19,7 +19,6 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -30,6 +29,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
+import kov_p.pixelplayer_desktop.core_ui.PixelInputField
 import kov_p.pixelplayer_desktop.core_ui.cover.CoverData
 import kov_p.pixelplayer_desktop.core_ui.cover.PixelCover
 import kov_p.pixelplayer_desktop.feature_main_flow.albums.new_album.AvailableArtistVs
@@ -59,13 +59,13 @@ internal fun DialogHeader(
             var width by remember { mutableStateOf(0.dp) }
             val density = LocalDensity.current
             Column {
-                OutlinedTextField(
+                PixelInputField(
                     modifier = Modifier.fillMaxWidth().onSizeChanged {
                         density.run { width = it.width.toDp() }
                     },
                     value = selectedArtist?.name.orEmpty(),
-                    readOnly = true,
-                    placeholder = { Text(text = "Click to select artist") },
+                    readonly = true,
+                    placeholder = "Click to select artist",
                     onValueChange = {},
                     trailingIcon = {
                         IconButton(onClick = { isExpanded = !isExpanded }) {
@@ -82,7 +82,13 @@ internal fun DialogHeader(
                 ) {
                     artists.forEach { art ->
                         DropdownMenuItem(
-                            text = { Text(text = art.name) },
+                            text = {
+                                Text(
+                                    text = art.name,
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = MaterialTheme.colorScheme.onSurface,
+                                )
+                            },
                             onClick = {
                                 onArtistSelect(art)
                                 isExpanded = false
@@ -96,19 +102,19 @@ internal fun DialogHeader(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
             ) {
-                OutlinedTextField(
+                PixelInputField(
                     modifier = Modifier.weight(2f),
                     value = albumName,
                     onValueChange = onAlbumNameChanged,
-                    placeholder = { Text("Enter album's title") },
+                    placeholder = "Enter album's title",
                     singleLine = true,
                 )
 
-                OutlinedTextField(
+                PixelInputField(
                     modifier = Modifier.weight(1f),
                     value = albumYear,
                     onValueChange = onYearChanged,
-                    placeholder = { Text("Enter album's year") },
+                    placeholder = "Enter album's year",
                     singleLine = true,
                 )
             }

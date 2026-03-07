@@ -85,7 +85,7 @@ fun EndpointInputComposable(
 //                )
                 PixelInputField(
                     value = endpoint,
-                    onValueChanged = {
+                    onValueChange = {
                         endpoint = it
                         error = null
                     },

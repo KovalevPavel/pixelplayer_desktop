@@ -35,9 +35,10 @@ internal class EndpointInputViewModel(
                     EndpointInputEvent.NavigateToCredentialsInput.let(::emitNewEvent)
                 }
             },
-            finally = {
+            onFailure = {
                 EndpointInputEvent.ShowFullScreenLoader(show = false).let(::emitNewEvent)
-            }
+                EndpointInputEvent.ShowError(it.message.orEmpty()).let(::emitNewEvent)
+            },
         )
     }
 

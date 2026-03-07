@@ -10,10 +10,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -24,8 +24,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import kov_p.pixelplayer_desktop.core_ui.FullScreenLoader
+import kov_p.pixelplayer_desktop.core_ui.PixelInputField
 import kov_p.pixelplayer_desktop.core_ui.collectWithLifecycle
 import kov_p.pixelplayer_desktop.feature_login._di.LocalLoginScope
 import org.koin.core.annotation.KoinExperimentalAPI
@@ -40,6 +42,7 @@ fun CredentialsInputComposable(
     val viewModel: CredentialsInputViewModel = remember { scope.get() }
 
     var isLoaderVisible by rememberSaveable { mutableStateOf(false) }
+    var error: String? by remember { mutableStateOf(null) }
 
     viewModel.eventsFlow.collectWithLifecycle { event ->
         when (event) {
@@ -53,6 +56,10 @@ fun CredentialsInputComposable(
 
             is CredentialsInputEvent.ShowFullScreenLoader -> {
                 isLoaderVisible = event.show
+            }
+
+            is CredentialsInputEvent.ShowError -> {
+                error = event.message
             }
         }
     }
@@ -75,19 +82,31 @@ fun CredentialsInputComposable(
                 modifier = Modifier.width(IntrinsicSize.Min),
                 verticalArrangement = Arrangement.spacedBy(12.dp),
             ) {
-                TextField(
+                PixelInputField(
                     value = login,
-                    onValueChange = { login = it },
-                    placeholder = { Text("login") },
-                    singleLine = true,
+                    onValueChanged = {
+                        login = it
+                        error = null
+                    },
+                    placeholder = "login",
                 )
 
-                TextField(
+                PixelInputField(
                     value = password,
-                    onValueChange = { password = it },
-                    placeholder = { Text("password") },
-                    singleLine = true,
+                    onValueChanged = {
+                        password = it
+                        error = null
+                    },
+                    placeholder = "password",
                     visualTransformation = PasswordVisualTransformation(),
+                )
+
+                Text(
+                    text = error.orEmpty(),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.error,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
                 )
 
                 Button(
@@ -107,7 +126,10 @@ fun CredentialsInputComposable(
                         CredentialsInputAction.ChangeEndpoint.let(viewModel::handleAction)
                     },
                 ) {
-                    Text(text = "Change endpoint")
+                    Text(
+                        text = "Change endpoint",
+                        style = MaterialTheme.typography.bodyMedium,
+                    )
                 }
             }
         }

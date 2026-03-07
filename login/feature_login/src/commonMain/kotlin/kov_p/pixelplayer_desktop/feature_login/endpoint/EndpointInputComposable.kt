@@ -13,9 +13,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -27,6 +25,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import kov_p.pixelplayer_desktop.core_ui.FullScreenLoader
+import kov_p.pixelplayer_desktop.core_ui.PixelInputField
 import kov_p.pixelplayer_desktop.core_ui.collectWithLifecycle
 import kov_p.pixelplayer_desktop.feature_login.LoginScreen
 import kov_p.pixelplayer_desktop.feature_login._di.LocalLoginScope
@@ -43,9 +42,9 @@ fun EndpointInputComposable(
 
     var endpoint by rememberSaveable { mutableStateOf("") }
     var isLoaderVisible by remember { mutableStateOf(false) }
-    val isButtonEnabled by remember {
-        derivedStateOf { endpoint.isNotEmpty() }
-    }
+    val isButtonEnabled = endpoint.isNotEmpty()
+
+    var error: String? by remember { mutableStateOf(null) }
 
     viewModel.eventsFlow.collectWithLifecycle { event ->
         when (event) {
@@ -55,6 +54,10 @@ fun EndpointInputComposable(
 
             is EndpointInputEvent.NavigateToCredentialsInput -> {
                 navController.navigate(LoginScreen.CredentialsInput)
+            }
+
+            is EndpointInputEvent.ShowError -> {
+                error = event.message
             }
         }
     }
@@ -70,9 +73,22 @@ fun EndpointInputComposable(
                 modifier = Modifier.width(IntrinsicSize.Min),
                 verticalArrangement = Arrangement.spacedBy(24.dp),
             ) {
-                TextField(
+//                InputGroup(
+//                    endpoint = endpoint,
+//                    error = error,
+//                    isButtonEnabled = isButtonEnabled,
+//                    onInputChanged = {
+//                        endpoint = it
+//                        error = null
+//                    },
+//                    onAction = viewModel::handleAction,
+//                )
+                PixelInputField(
                     value = endpoint,
-                    onValueChange = { endpoint = it },
+                    onValueChanged = {
+                        endpoint = it
+                        error = null
+                    },
                     keyboardOptions = KeyboardOptions(
                         imeAction = ImeAction.Go,
                     ),
@@ -83,8 +99,8 @@ fun EndpointInputComposable(
                             }
                         },
                     ),
-                    singleLine = true,
-                    placeholder = { Text(text = "https://") },
+                    placeholder = "https://",
+                    error = { error },
                 )
 
                 Button(

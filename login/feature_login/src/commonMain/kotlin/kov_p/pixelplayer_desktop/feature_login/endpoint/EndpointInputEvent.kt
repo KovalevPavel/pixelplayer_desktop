@@ -4,4 +4,7 @@ internal sealed interface EndpointInputEvent {
     @JvmInline
     value class ShowFullScreenLoader(val show: Boolean) : EndpointInputEvent
     data object NavigateToCredentialsInput : EndpointInputEvent
+
+    @JvmInline
+    value class ShowError(val message: String) : EndpointInputEvent
 }

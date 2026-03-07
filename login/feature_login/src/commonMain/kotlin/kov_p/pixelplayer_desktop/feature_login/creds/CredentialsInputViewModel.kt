@@ -42,11 +42,9 @@ class CredentialsInputViewModel(
                 }
             },
             onFailure = {
-                println("error while login: $it")
-            },
-            finally = {
                 CredentialsInputEvent.ShowFullScreenLoader(show = false).let(::emitEvent)
-            }
+                CredentialsInputEvent.ShowError(it.message.orEmpty()).let(::emitEvent)
+            },
         )
     }
 

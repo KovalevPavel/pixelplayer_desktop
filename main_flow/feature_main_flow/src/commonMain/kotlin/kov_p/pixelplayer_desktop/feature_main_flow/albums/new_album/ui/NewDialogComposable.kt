@@ -278,7 +278,6 @@ internal fun RowScope.DiskPager(
     val pagerState = rememberPagerState { disks.size }
     var selectedTab by rememberSaveable { mutableIntStateOf(0) }
 
-    val listState = rememberLazyListState()
     val scope = rememberCoroutineScope()
 
     Column(
@@ -339,8 +338,17 @@ internal fun RowScope.DiskPager(
             userScrollEnabled = false,
             state = pagerState,
         ) { pageIndex ->
+            val listState = rememberLazyListState()
             val dragDropState = rememberDragDropState(listState) { fromIndex, toIndex ->
-                val newList = disks[pageIndex].toMutableList().apply { add(toIndex, removeAt(fromIndex)) }
+                val currentTracksList = disks.getOrNull(pageIndex).orEmpty()
+                if (fromIndex == toIndex || fromIndex !in currentTracksList.indices) return@rememberDragDropState
+                val newList = currentTracksList.toMutableList().apply {
+                    val moved = this.removeAt(fromIndex)
+                    val adjustedToIndex = if (toIndex > fromIndex) toIndex - 1 else toIndex
+                    val safeToIndex = adjustedToIndex.coerceIn(0, this.size)
+                    this.add(safeToIndex, moved)
+                }
+
                 onDragAndDrop(pageIndex, newList)
             }
             TrackList(

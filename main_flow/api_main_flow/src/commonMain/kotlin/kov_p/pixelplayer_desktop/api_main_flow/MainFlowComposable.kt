@@ -48,8 +48,14 @@ import kov_p.pixelplayer_desktop.feature_main_flow._di.LocalMainScope
 import kov_p.pixelplayer_desktop.feature_main_flow.albums.ui.AlbumsComposable
 import kov_p.pixelplayer_desktop.feature_main_flow.artists.ui.ArtistsComposable
 import kov_p.pixelplayer_desktop.feature_main_flow.tracks.TracksComposable
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.getKoin
 import org.koin.core.annotation.KoinExperimentalAPI
+import pixelplayer_desktop.api_main_flow.generated.resources.Res
+import pixelplayer_desktop.api_main_flow.generated.resources.albums_tab
+import pixelplayer_desktop.api_main_flow.generated.resources.artists_tab
+import pixelplayer_desktop.api_main_flow.generated.resources.logout
+import pixelplayer_desktop.api_main_flow.generated.resources.tracks_tab
 
 @Serializable
 data object MainFlow
@@ -166,6 +172,12 @@ private fun MainFlowComposable(
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
             MainFlowScreen.entries.forEach { screen ->
+                val stringRes = when (screen) {
+                    MainFlowScreen.Artists -> Res.string.artists_tab
+                    MainFlowScreen.Albums -> Res.string.albums_tab
+                    MainFlowScreen.Tracks -> Res.string.tracks_tab
+                }
+
                 TextButton(
                     enabled = activeTab != screen,
                     modifier = Modifier.fillMaxWidth(),
@@ -178,7 +190,7 @@ private fun MainFlowComposable(
                     },
                 ) {
                     Text(
-                        text = screen.name,
+                        text = stringResource(stringRes),
                         style = MaterialTheme.typography.titleMedium,
                         color = if (activeTab != screen) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.primary,
                     )
@@ -193,7 +205,7 @@ private fun MainFlowComposable(
                 onClick = onLogout,
             ) {
                 Text(
-                    text = "Logout",
+                    text = stringResource(Res.string.logout),
                     style = MaterialTheme.typography.titleMedium,
                     color = MaterialTheme.colorScheme.onSurface,
                 )

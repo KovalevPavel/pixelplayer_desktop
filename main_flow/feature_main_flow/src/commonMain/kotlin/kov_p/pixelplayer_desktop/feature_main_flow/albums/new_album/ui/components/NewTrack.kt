@@ -25,6 +25,10 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import kov_p.pixelplayer_desktop.core_ui.PixelInputField
 import kov_p.pixelplayer_desktop.feature_main_flow.albums.new_album.NewAlbumAction
+import org.jetbrains.compose.resources.stringResource
+import pixelplayer_desktop.feature_main_flow.generated.resources.Res
+import pixelplayer_desktop.feature_main_flow.generated.resources.enter_displayer_track_title
+import pixelplayer_desktop.feature_main_flow.generated.resources.track_pos
 
 @Composable
 internal fun NewTrack(
@@ -41,7 +45,7 @@ internal fun NewTrack(
     ) {
         Text(
             modifier = Modifier.size(24.dp),
-            text = "$position",
+            text = stringResource(Res.string.track_pos, position),
             textAlign = TextAlign.Center,
         )
 
@@ -60,7 +64,7 @@ internal fun NewTrack(
                 modifier = Modifier.fillMaxWidth(),
                 value = viewState.title,
                 onValueChange = onTitleChanged,
-                placeholder = "Enter displayed track title",
+                placeholder = stringResource(Res.string.enter_displayer_track_title),
             )
         }
 

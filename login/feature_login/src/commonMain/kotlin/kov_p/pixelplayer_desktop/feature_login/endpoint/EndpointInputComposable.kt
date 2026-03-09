@@ -29,7 +29,10 @@ import kov_p.pixelplayer_desktop.core_ui.PixelInputField
 import kov_p.pixelplayer_desktop.core_ui.collectWithLifecycle
 import kov_p.pixelplayer_desktop.feature_login.LoginScreen
 import kov_p.pixelplayer_desktop.feature_login._di.LocalLoginScope
+import org.jetbrains.compose.resources.stringResource
 import org.koin.core.annotation.KoinExperimentalAPI
+import pixelplayer_desktop.feature_login.generated.resources.Res
+import pixelplayer_desktop.feature_login.generated.resources.next
 
 @OptIn(KoinExperimentalAPI::class)
 @Composable
@@ -73,16 +76,6 @@ fun EndpointInputComposable(
                 modifier = Modifier.width(IntrinsicSize.Min),
                 verticalArrangement = Arrangement.spacedBy(24.dp),
             ) {
-//                InputGroup(
-//                    endpoint = endpoint,
-//                    error = error,
-//                    isButtonEnabled = isButtonEnabled,
-//                    onInputChanged = {
-//                        endpoint = it
-//                        error = null
-//                    },
-//                    onAction = viewModel::handleAction,
-//                )
                 PixelInputField(
                     value = endpoint,
                     onValueChange = {
@@ -110,7 +103,9 @@ fun EndpointInputComposable(
                         EndpointInputAction.CheckEndpoint(endpoint).let(viewModel::handleAction)
                     },
                 ) {
-                    Text("Next")
+                    Text(
+                        text = stringResource(Res.string.next),
+                    )
                 }
             }
         }

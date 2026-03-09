@@ -11,7 +11,10 @@ import kov_p.pixelplayer_desktop.core_ui.collectWithLifecycle
 import kov_p.pixelplayer_desktop.feature_main_flow._di.LocalMainScope
 import kov_p.pixelplayer_desktop.feature_main_flow.artists.new_artist.di.NewArtistScope
 import kov_p.pixelplayer_desktop.feature_main_flow.artists.new_artist.di.newArtistModule
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.getKoin
+import pixelplayer_desktop.feature_main_flow.generated.resources.Res
+import pixelplayer_desktop.feature_main_flow.generated.resources.new_artist
 
 @Composable
 fun NewArtistDialog(
@@ -38,7 +41,7 @@ fun NewArtistDialog(
     }
 
     EditDialog(
-        title = "New artist",
+        title = stringResource(Res.string.new_artist),
         state = rememberDialogState(size = DpSize(width = 600.dp, height = 280.dp)),
         resizable = false,
         onClose = { removeFromComposition() },

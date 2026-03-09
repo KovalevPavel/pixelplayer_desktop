@@ -30,7 +30,12 @@ import kov_p.pixelplayer_desktop.core_ui.FullScreenLoader
 import kov_p.pixelplayer_desktop.core_ui.PixelInputField
 import kov_p.pixelplayer_desktop.core_ui.collectWithLifecycle
 import kov_p.pixelplayer_desktop.feature_login._di.LocalLoginScope
+import org.jetbrains.compose.resources.stringResource
 import org.koin.core.annotation.KoinExperimentalAPI
+import pixelplayer_desktop.feature_login.generated.resources.Res
+import pixelplayer_desktop.feature_login.generated.resources.change_endpoint
+import pixelplayer_desktop.feature_login.generated.resources.login
+import pixelplayer_desktop.feature_login.generated.resources.password
 
 @OptIn(KoinExperimentalAPI::class, ExperimentalMaterial3Api::class)
 @Composable
@@ -88,7 +93,7 @@ fun CredentialsInputComposable(
                         login = it
                         error = null
                     },
-                    placeholder = "login",
+                    placeholder = stringResource(Res.string.login).lowercase(),
                 )
 
                 PixelInputField(
@@ -97,7 +102,7 @@ fun CredentialsInputComposable(
                         password = it
                         error = null
                     },
-                    placeholder = "password",
+                    placeholder = stringResource(Res.string.password).lowercase(),
                     visualTransformation = PasswordVisualTransformation(),
                 )
 
@@ -117,7 +122,9 @@ fun CredentialsInputComposable(
                             .let(viewModel::handleAction)
                     },
                 ) {
-                    Text("Login")
+                    Text(
+                        text = stringResource(Res.string.login),
+                    )
                 }
 
                 TextButton(
@@ -127,7 +134,7 @@ fun CredentialsInputComposable(
                     },
                 ) {
                     Text(
-                        text = "Change endpoint",
+                        text = stringResource(Res.string.change_endpoint),
                         style = MaterialTheme.typography.bodyMedium,
                     )
                 }

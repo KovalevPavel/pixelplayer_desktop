@@ -84,10 +84,19 @@ import kov_p.pixelplayer_desktop.feature_main_flow.albums.new_album.di.NewAlbumS
 import kov_p.pixelplayer_desktop.feature_main_flow.albums.new_album.di.newAlbumModule
 import kov_p.pixelplayer_desktop.feature_main_flow.albums.new_album.ui.components.DialogHeader
 import kov_p.pixelplayer_desktop.feature_main_flow.albums.new_album.ui.components.NewTrack
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.getKoin
 import org.koin.compose.koinInject
+import pixelplayer_desktop.feature_main_flow.generated.resources.Res
+import pixelplayer_desktop.feature_main_flow.generated.resources.create
+import pixelplayer_desktop.feature_main_flow.generated.resources.disk_tab
+import pixelplayer_desktop.feature_main_flow.generated.resources.new_album_dialog_title
+import pixelplayer_desktop.feature_main_flow.generated.resources.select_tracks
+import pixelplayer_desktop.feature_main_flow.generated.resources.upload_progress
 
 internal typealias DisksList = List<List<NewAlbumAction.NewTrack>>
+
+private val supportedMusicExtensions = listOf("mp3", "flac")
 
 private fun DisksList.musicIsReady(): Boolean {
     return this.isNotEmpty() && this.all { d -> d.isNotEmpty() && d.all { it.isFilled } }
@@ -127,7 +136,7 @@ internal fun NewDialog(
     }
 
     EditDialog(
-        title = "New album",
+        title = stringResource(Res.string.new_album_dialog_title),
         state = rememberDialogState(size = DpSize(900.dp, 500.dp)),
         resizable = true,
         onClose = { removeFromComposition() },
@@ -187,7 +196,7 @@ internal fun NewDialogContent(
             onAlbumNameChanged = { newAlbumName = it },
             onCoverSelected = { cover = it },
             onYearChanged = {
-                val newYear = if (it == "") {
+                val newYear = if (it.isEmpty()) {
                     0
                 } else {
                     it.toIntOrNull()?.takeIf { y -> y > 0 } ?: return@DialogHeader
@@ -272,13 +281,17 @@ internal fun NewDialogContent(
                     },
                     enabled = isButtonEnabled,
                 ) {
-                    Text(text = "Create")
+                    Text(
+                        text = stringResource(Res.string.create),
+                    )
                 }
                 Button(
                     modifier = Modifier.fillMaxWidth(),
                     onClick = { trackPickerVisible = true },
                 ) {
-                    Text(text = "Select tracks")
+                    Text(
+                        text = stringResource(Res.string.select_tracks),
+                    )
                 }
             }
         }
@@ -326,7 +339,7 @@ internal fun RowScope.DiskPager(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
-                            text = "Disk ${pageIndex + 1}",
+                            text = stringResource(Res.string.disk_tab, pageIndex + 1),
                             style = MaterialTheme.typography.bodyMedium,
                         )
                         if (pagerState.pageCount > 1) {
@@ -437,7 +450,7 @@ internal fun TrackList(
 
     RegisterFilePicker(
         isVisible = isPickerVisible,
-        fileExtensions = listOf("mp3"),
+        fileExtensions = supportedMusicExtensions,
         allowMultiple = true,
         onSelected = { list ->
             list?.map { file ->
@@ -486,7 +499,7 @@ private fun LinearProgress(
                 progress = { runCatching { completed / total.toFloat() }.getOrElse { 0f } },
             )
             Text(
-                text = "$completed / $total",
+                text = stringResource(Res.string.upload_progress, completed, total),
                 style = MaterialTheme.typography.titleMedium,
                 color = MaterialTheme.colorScheme.onSurface,
             )

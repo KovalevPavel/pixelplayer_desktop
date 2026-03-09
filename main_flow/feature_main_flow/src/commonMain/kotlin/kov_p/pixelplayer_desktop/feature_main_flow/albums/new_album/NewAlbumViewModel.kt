@@ -32,7 +32,6 @@ import java.util.UUID
 import kotlin.io.deleteRecursively
 import kotlin.io.inputStream
 import kotlin.io.outputStream
-import kotlin.io.println
 import kotlin.use
 
 internal class NewAlbumViewModel(
@@ -122,12 +121,6 @@ internal class NewAlbumViewModel(
             onFailure = {
                 state = state.copy(progress = NewAlbumState.Progress.None)
                 NewAlbumEvent.ShowError(message = it.message.orEmpty()).let(::emitNewEvent)
-                println(
-                    """
-                    Error while creation:
-                    ${it.message}
-                """.trimIndent(),
-                )
             },
             finally = {
                 removeUploadTempDir(albumId = albumUploadId)

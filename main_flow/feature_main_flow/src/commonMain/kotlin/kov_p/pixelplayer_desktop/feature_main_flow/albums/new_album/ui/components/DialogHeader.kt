@@ -33,6 +33,11 @@ import kov_p.pixelplayer_desktop.core_ui.PixelInputField
 import kov_p.pixelplayer_desktop.core_ui.cover.CoverData
 import kov_p.pixelplayer_desktop.core_ui.cover.PixelCover
 import kov_p.pixelplayer_desktop.feature_main_flow.albums.new_album.AvailableArtistVs
+import org.jetbrains.compose.resources.stringResource
+import pixelplayer_desktop.feature_main_flow.generated.resources.Res
+import pixelplayer_desktop.feature_main_flow.generated.resources.click_to_select_artist
+import pixelplayer_desktop.feature_main_flow.generated.resources.enter_albums_title
+import pixelplayer_desktop.feature_main_flow.generated.resources.enter_albums_year
 
 @Composable
 internal fun DialogHeader(
@@ -65,7 +70,7 @@ internal fun DialogHeader(
                     },
                     value = selectedArtist?.name.orEmpty(),
                     readonly = true,
-                    placeholder = "Click to select artist",
+                    placeholder = stringResource(Res.string.click_to_select_artist),
                     onValueChange = {},
                     trailingIcon = {
                         IconButton(onClick = { isExpanded = !isExpanded }) {
@@ -106,7 +111,7 @@ internal fun DialogHeader(
                     modifier = Modifier.weight(2f),
                     value = albumName,
                     onValueChange = onAlbumNameChanged,
-                    placeholder = "Enter album's title",
+                    placeholder = stringResource(Res.string.enter_albums_title),
                     singleLine = true,
                 )
 
@@ -114,7 +119,7 @@ internal fun DialogHeader(
                     modifier = Modifier.weight(1f),
                     value = albumYear,
                     onValueChange = onYearChanged,
-                    placeholder = "Enter album's year",
+                    placeholder = stringResource(Res.string.enter_albums_year),
                     singleLine = true,
                 )
             }

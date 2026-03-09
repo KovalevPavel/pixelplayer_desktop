@@ -15,6 +15,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -38,6 +39,14 @@ import kov_p.pixelplayer_desktop.feature_main_flow.albums.AlbumsState
 import kov_p.pixelplayer_desktop.feature_main_flow.albums.AlbumsViewModel
 import kov_p.pixelplayer_desktop.feature_main_flow.albums.new_album.ui.NewDialog
 import kov_p.pixelplayer_desktop.feature_main_flow.components.EntityCard
+import org.jetbrains.compose.resources.stringResource
+import pixelplayer_desktop.feature_main_flow.generated.resources.Res
+import pixelplayer_desktop.feature_main_flow.generated.resources.album_card_footer
+import pixelplayer_desktop.feature_main_flow.generated.resources.album_card_subtitle
+import pixelplayer_desktop.feature_main_flow.generated.resources.cancel
+import pixelplayer_desktop.feature_main_flow.generated.resources.edit_album_dialog_title
+import pixelplayer_desktop.feature_main_flow.generated.resources.empty_albums
+import pixelplayer_desktop.feature_main_flow.generated.resources.save
 
 @Composable
 fun AlbumsComposable() {
@@ -101,24 +110,37 @@ private fun AlbumDataComposable(
     onDelete: (String) -> Unit,
 ) {
     var dialog by rememberSaveable { mutableStateOf(false) }
-    CardList(modifier = Modifier.fillMaxSize()) {
-        items(items = state.albums, key = { it.id }) { item ->
-            EntityCard(
-                title = item.title,
-                subtitle = "${item.artist} • ${item.year}",
-                footer = "Tracks: ${item.tracks}",
-                image = item.cover,
-                onEditClick = {
-                    dialog = true
-                },
-                onRemoveClick = { onDelete(item.id) },
+    if (state.albums.isEmpty()) {
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center,
+        ) {
+            Text(
+                text = stringResource(Res.string.empty_albums),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
+        }
+    } else {
+        CardList(modifier = Modifier.fillMaxSize()) {
+            items(items = state.albums, key = { it.id }) { item ->
+                EntityCard(
+                    title = item.title,
+                    subtitle = stringResource(Res.string.album_card_subtitle, item.artist, item.year),
+                    footer = stringResource(Res.string.album_card_footer, item.tracks),
+                    image = item.cover,
+                    onEditClick = {
+                        dialog = true
+                    },
+                    onRemoveClick = { onDelete(item.id) },
+                )
+            }
         }
     }
 
     if (dialog) {
         EditDialog(
-            title = "Edit album",
+            title = stringResource(Res.string.edit_album_dialog_title),
             onClose = { dialog = false },
         ) { cl ->
             Column(
@@ -129,20 +151,24 @@ private fun AlbumDataComposable(
                 Column(
                     modifier = Modifier.fillMaxWidth().weight(1f),
                 ) {
-
+                    // todo
                 }
 
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
                     Button(
                         onClick = {},
                     ) {
-                        Text("Save")
+                        Text(
+                            text = stringResource(Res.string.save),
+                        )
                     }
 
                     Button(
                         onClick = cl,
                     ) {
-                        Text("Cancel")
+                        Text(
+                            text = stringResource(Res.string.cancel),
+                        )
                     }
                 }
             }

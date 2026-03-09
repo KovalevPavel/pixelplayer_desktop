@@ -23,6 +23,10 @@ import androidx.compose.ui.unit.dp
 import kov_p.pixelplayer_desktop.core_ui.FullScreenLoader
 import kov_p.pixelplayer_desktop.core_ui.cover.CoverData
 import kov_p.pixelplayer_desktop.core_ui.cover.PixelCover
+import org.jetbrains.compose.resources.stringResource
+import pixelplayer_desktop.feature_main_flow.generated.resources.Res
+import pixelplayer_desktop.feature_main_flow.generated.resources.create
+import pixelplayer_desktop.feature_main_flow.generated.resources.enter_artist_name
 
 @Composable
 internal fun NewArtistDialogContent(
@@ -51,7 +55,7 @@ internal fun NewArtistDialogContent(
                 textStyle = MaterialTheme.typography.bodyMedium,
                 placeholder = {
                     Text(
-                        text = "Enter artist's name",
+                        text = stringResource(Res.string.enter_artist_name),
                         style = MaterialTheme.typography.bodyMedium,
                     )
                 },
@@ -82,7 +86,9 @@ internal fun NewArtistDialogContent(
                     onAction(NewArtistAction.CreateArtist(name = newArtistName, avatar = photo?.path.orEmpty()))
                 },
             ) {
-                Text(text = "Create artist")
+                Text(
+                    text = stringResource(Res.string.create),
+                )
             }
         }
     }

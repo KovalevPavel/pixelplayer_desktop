@@ -29,7 +29,7 @@ import kov_p.pixelplayer_desktop.core_ui.RegisterFilePicker
 import kov_p.pixelplayer_desktop.core_ui.theme.PixelplayerTheme
 import java.io.File
 
-private val supportedImagesExtensions = listOf("jpg", "jpeg", "png")
+private val supportedImageExtensions = listOf("jpg", "jpeg", "png")
 
 @Composable
 fun PixelCover(
@@ -80,7 +80,7 @@ fun PixelCover(
 
     RegisterFilePicker(
         isVisible = isPickerVisible,
-        fileExtensions = supportedImagesExtensions,
+        fileExtensions = supportedImageExtensions,
         allowMultiple = false,
         onSelected = {
             isPickerVisible = false

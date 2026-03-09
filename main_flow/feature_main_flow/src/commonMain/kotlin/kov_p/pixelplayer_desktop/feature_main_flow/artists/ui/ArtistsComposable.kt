@@ -9,9 +9,11 @@ import androidx.compose.material.icons.filled.PersonAdd
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -29,7 +31,11 @@ import kov_p.pixelplayer_desktop.feature_main_flow.artists.ArtistsState
 import kov_p.pixelplayer_desktop.feature_main_flow.artists.ArtistsViewModel
 import kov_p.pixelplayer_desktop.feature_main_flow.artists.new_artist.NewArtistDialog
 import kov_p.pixelplayer_desktop.feature_main_flow.components.EntityCard
+import org.jetbrains.compose.resources.stringResource
 import org.koin.core.annotation.KoinExperimentalAPI
+import pixelplayer_desktop.feature_main_flow.generated.resources.Res
+import pixelplayer_desktop.feature_main_flow.generated.resources.albums_pattern
+import pixelplayer_desktop.feature_main_flow.generated.resources.empty_artists
 
 @OptIn(KoinExperimentalAPI::class)
 @Composable
@@ -98,15 +104,28 @@ private fun ArtistsDataComposable(
     onEditClick: () -> Unit,
     onRemoveClick: (String) -> Unit,
 ) {
-    CardList(modifier = Modifier.fillMaxSize()) {
-        items(items = state.artists, key = { item -> item.id }) { item ->
-            EntityCard(
-                title = item.name,
-                subtitle = "Albums: ${item.albums}",
-                image = item.avatar,
-                onEditClick = onEditClick,
-                onRemoveClick = { onRemoveClick(item.id) },
+    if (state.artists.isEmpty()) {
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center,
+        ) {
+            Text(
+                text = stringResource(Res.string.empty_artists),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
+        }
+    } else {
+        CardList(modifier = Modifier.fillMaxSize()) {
+            items(items = state.artists, key = { item -> item.id }) { item ->
+                EntityCard(
+                    title = item.name,
+                    subtitle = stringResource(Res.string.albums_pattern, item.albums),
+                    image = item.avatar,
+                    onEditClick = onEditClick,
+                    onRemoveClick = { onRemoveClick(item.id) },
+                )
+            }
         }
     }
 }

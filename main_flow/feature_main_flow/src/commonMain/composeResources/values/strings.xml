@@ -1,0 +1,28 @@
+<resources>
+    <string name="empty_artists">Artists' list is empty</string>
+    <string name="empty_albums">Albums' list is empty</string>
+    <string name="under_construction">🚧 Under construction 🚧</string>
+
+    <string name="albums_pattern">Albums: %1$d</string>
+    <string name="album_card_subtitle">%1$s • %2$s</string>
+    <string name="album_card_footer">Tracks: %1$d</string>
+
+    <string name="new_album_dialog_title">New album</string>
+    <string name="edit_album_dialog_title">Edit album</string>
+    <string name="click_to_select_artist">Click to select artist</string>
+    <string name="enter_albums_title">Enter album's title</string>
+    <string name="enter_albums_year">Enter album's year</string>
+
+    <string name="select_tracks">Select tracks</string>
+    <string name="disk_tab">Disk %1$d</string>
+    <string name="track_pos">%1$d</string>
+    <string name="enter_displayer_track_title">Enter displayed track title</string>
+    <string name="upload_progress">%1$d / %2$d</string>
+
+    <string name="new_artist">New artist</string>
+    <string name="enter_artist_name">Enter artist's name</string>
+
+    <string name="create">Create</string>
+    <string name="save">Save</string>
+    <string name="cancel">Cancel</string>
+</resources>

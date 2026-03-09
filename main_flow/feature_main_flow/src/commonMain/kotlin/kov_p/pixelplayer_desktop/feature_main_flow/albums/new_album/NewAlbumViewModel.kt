@@ -91,6 +91,7 @@ internal class NewAlbumViewModel(
                             position = trackPos,
                             disk = diskNum.takeIf { disks.size > 1 },
                             albumId = albumId,
+                            fileFormat = track.path.substringAfterLast(delimiter = '.', missingDelimiterValue = ""),
                         ) to track.path
                     }
                 }
@@ -236,4 +237,5 @@ private data class TrackDto(
     @SerialName("position") val position: Int,
     @SerialName("disk") val disk: Int?,
     @SerialName("album_id") val albumId: String,
+    @SerialName("file_format") val fileFormat: String,
 )

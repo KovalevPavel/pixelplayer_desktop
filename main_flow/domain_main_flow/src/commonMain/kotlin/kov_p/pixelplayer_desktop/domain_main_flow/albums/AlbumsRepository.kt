@@ -1,7 +1,11 @@
 package kov_p.pixelplayer_desktop.domain_main_flow.albums
 
+import kotlinx.coroutines.flow.StateFlow
+
 interface AlbumsRepository {
-    suspend fun getAllAlbums(): List<AlbumVo>
+    val albums: StateFlow<List<AlbumVo>?>
+
+    suspend fun getAllAlbums()
     suspend fun createAlbum(
         artist: String,
         title: String,

@@ -77,12 +77,7 @@ fun AlbumsComposable() {
     }
 
     if (newDialog) {
-        NewDialog { needToRefresh ->
-            newDialog = false
-            if (needToRefresh) {
-                AlbumAction.FetchAlbums.let(viewModel::handleAction)
-            }
-        }
+        NewDialog { newDialog = false }
     }
 }
 

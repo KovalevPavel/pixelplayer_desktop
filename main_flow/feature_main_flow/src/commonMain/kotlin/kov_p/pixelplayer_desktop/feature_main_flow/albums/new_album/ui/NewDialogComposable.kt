@@ -95,7 +95,7 @@ private fun DisksList.musicIsReady(): Boolean {
 
 @Composable
 internal fun NewDialog(
-    removeFromComposition: (refresh: Boolean) -> Unit,
+    removeFromComposition: () -> Unit,
 ) {
     val koin = getKoin()
 
@@ -116,12 +116,12 @@ internal fun NewDialog(
     viewModel.eventsFlow.collectWithLifecycle { event ->
         when (event) {
             is NewAlbumEvent.CloseDialog -> {
-                removeFromComposition(true)
+                removeFromComposition()
             }
 
             is NewAlbumEvent.ShowError -> {
                 snackHost.showSnackbar(message = event.message)
-                removeFromComposition(true)
+                removeFromComposition()
             }
         }
     }
@@ -130,7 +130,7 @@ internal fun NewDialog(
         title = "New album",
         state = rememberDialogState(size = DpSize(900.dp, 500.dp)),
         resizable = true,
-        onClose = { removeFromComposition(false) },
+        onClose = { removeFromComposition() },
     ) {
         Scaffold(
             modifier = Modifier.fillMaxSize(),

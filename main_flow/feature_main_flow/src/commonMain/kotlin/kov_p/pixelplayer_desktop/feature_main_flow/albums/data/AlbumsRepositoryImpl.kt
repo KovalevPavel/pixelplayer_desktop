@@ -1,6 +1,7 @@
 package kov_p.pixelplayer_desktop.feature_main_flow.albums.data
 
 import io.ktor.client.HttpClient
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
@@ -12,8 +13,10 @@ import kov_p.pixelplayer_desktop.domain_main_flow.albums.AlbumsRepository
 class AlbumsRepositoryImpl(
     private val client: HttpClient,
 ) : AlbumsRepository {
-    override suspend fun getAllAlbums(): List<AlbumVo> {
-        return client.get<List<AlbumDto>>(path = "albums/all")
+    override val albums: MutableStateFlow<List<AlbumVo>?> = MutableStateFlow(null)
+
+    override suspend fun getAllAlbums() {
+        client.get<List<AlbumDto>>(path = "albums/all")
             .mapNotNull { dto ->
                 AlbumVo(
                     id = dto.id ?: return@mapNotNull null,
@@ -24,6 +27,7 @@ class AlbumsRepositoryImpl(
                     tracks = dto.tracks?.size ?: 0,
                 )
             }
+            .let { list -> albums.value = list }
     }
 
     override suspend fun createAlbum(

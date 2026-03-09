@@ -7,12 +7,14 @@ import androidx.lifecycle.ViewModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kov_p.pixelplayer_desktop.core_ui.launch
+import kov_p.pixelplayer_desktop.domain_main_flow.UpdateInfoInteractor
 import kov_p.pixelplayer_desktop.domain_main_flow.artists.ArtistsRepository
 import kov_p.pixelplayer_desktop.domain_main_flow.upload.UploadRepository
 
 internal class NewArtistViewModel(
     private val uploadRepository: UploadRepository,
     private val artistsRepository: ArtistsRepository,
+    private val updateInfo: UpdateInfoInteractor,
 ) : ViewModel() {
     var state: NewArtistState by mutableStateOf(NewArtistState.init)
         private set
@@ -36,6 +38,7 @@ internal class NewArtistViewModel(
 
                 val avatarUrl = uploadRepository.uploadImage(avatar)
                 artistsRepository.createNewArtist(name = name, avatarUrl = avatarUrl)
+                updateInfo()
                 _eventsFlow.emit(NewArtistEvent.CloseDialog)
             },
             onFailure = {

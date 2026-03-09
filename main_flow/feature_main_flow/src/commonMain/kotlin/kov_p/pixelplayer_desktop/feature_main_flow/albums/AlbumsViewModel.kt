@@ -4,40 +4,46 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onEach
 import kov_p.pixelplayer_desktop.core_ui.launch
+import kov_p.pixelplayer_desktop.domain_main_flow.UpdateInfoInteractor
 import kov_p.pixelplayer_desktop.domain_main_flow.albums.AlbumsRepository
 
 class AlbumsViewModel(
-    private val repository: AlbumsRepository,
+    private val albumsRepository: AlbumsRepository,
+    private val updateInfo: UpdateInfoInteractor,
 ) : ViewModel() {
     var state: AlbumsState by mutableStateOf(AlbumsState.Loading)
         private set
 
     init {
-        AlbumAction.FetchAlbums.let(::handleAction)
+        subscribeToAlbums()
     }
 
     fun handleAction(action: AlbumAction) {
         when (action) {
-            AlbumAction.FetchAlbums -> fetchAlbums()
             is AlbumAction.DeleteAlbum -> deleteAlbum(albumId = action.albumId)
         }
-    }
-
-    private fun fetchAlbums() {
-        launch(
-            body = {
-                state = repository.getAllAlbums().let(AlbumsState::Data)
-            }
-        )
     }
 
     private fun deleteAlbum(albumId: String) {
         launch(
             body = {
-                repository.deleteAlbum(albumId)
-                AlbumAction.FetchAlbums.let(::handleAction)
+                albumsRepository.deleteAlbum(albumId)
+                updateInfo()
             },
         )
+    }
+
+    private fun subscribeToAlbums() {
+        albumsRepository.albums
+            .map { list -> list?.let(AlbumsState::Data) }
+            .onEach { newState ->
+                newState?.let { state = newState } ?: run { albumsRepository.getAllAlbums() }
+            }
+            .launchIn(viewModelScope)
     }
 }

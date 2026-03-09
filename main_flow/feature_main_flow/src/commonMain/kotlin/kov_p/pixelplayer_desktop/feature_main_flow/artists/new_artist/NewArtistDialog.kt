@@ -15,7 +15,7 @@ import org.koin.compose.getKoin
 
 @Composable
 fun NewArtistDialog(
-    removeFromComposition: (refresh: Boolean) -> Unit,
+    removeFromComposition: () -> Unit,
 ) {
     val koin = getKoin()
 
@@ -33,7 +33,7 @@ fun NewArtistDialog(
 
     viewModel.eventsFlow.collectWithLifecycle { event ->
         when (event) {
-            is NewArtistEvent.CloseDialog -> removeFromComposition(true)
+            is NewArtistEvent.CloseDialog -> removeFromComposition()
         }
     }
 
@@ -41,7 +41,7 @@ fun NewArtistDialog(
         title = "New artist",
         state = rememberDialogState(size = DpSize(width = 600.dp, height = 280.dp)),
         resizable = false,
-        onClose = { removeFromComposition(false) },
+        onClose = { removeFromComposition() },
     ) {
         NewArtistDialogContent(
             state = viewModel.state,

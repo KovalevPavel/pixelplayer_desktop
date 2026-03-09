@@ -76,14 +76,7 @@ fun ArtistsComposable() {
     }
 
     if (newDialog) {
-        NewArtistDialog(
-            removeFromComposition = { needToRefresh ->
-                newDialog = false
-                if (needToRefresh) {
-                    ArtistsAction.FetchData.let(viewModel::handleAction)
-                }
-            },
-        )
+        NewArtistDialog(removeFromComposition = { newDialog = false })
     }
 }
 

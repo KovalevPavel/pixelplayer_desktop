@@ -10,6 +10,9 @@ import io.ktor.utils.io.readFully
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
@@ -19,6 +22,7 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import kov_p.pixelplayer_desktop.core_ui.cover.CoverData
 import kov_p.pixelplayer_desktop.core_ui.launch
+import kov_p.pixelplayer_desktop.domain_main_flow.UpdateInfoInteractor
 import kov_p.pixelplayer_desktop.domain_main_flow.albums.AlbumsRepository
 import kov_p.pixelplayer_desktop.domain_main_flow.artists.ArtistsRepository
 import kov_p.pixelplayer_desktop.domain_main_flow.upload.UploadRepository
@@ -35,6 +39,7 @@ internal class NewAlbumViewModel(
     private val artistsRepository: ArtistsRepository,
     private val albumsRepository: AlbumsRepository,
     private val uploadRepository: UploadRepository,
+    private val updateInfo: UpdateInfoInteractor,
 ) : ViewModel() {
     var state: NewAlbumState by mutableStateOf(NewAlbumState.init)
         private set
@@ -45,7 +50,7 @@ internal class NewAlbumViewModel(
     private val mutex = Mutex()
 
     init {
-        NewAlbumAction.LoadAvailableArtists.let(::handleAction)
+        subscribeOnArtistsList()
     }
 
     fun handleAction(action: NewAlbumAction) {
@@ -59,21 +64,7 @@ internal class NewAlbumViewModel(
                     disks = action.disks,
                 )
             }
-
-            is NewAlbumAction.LoadAvailableArtists -> {
-                fetchAvailableArtists()
-            }
         }
-    }
-
-    private fun fetchAvailableArtists() {
-        launch(
-            body = {
-                val artists = artistsRepository.getAllArtists().map { AvailableArtistVs(id = it.id, name = it.name) }
-
-                state = state.copy(artists = artists, progress = NewAlbumState.Progress.None)
-            },
-        )
     }
 
     private fun createAlbum(
@@ -126,6 +117,7 @@ internal class NewAlbumViewModel(
                     .joinAll()
 
                 _eventsFlow.emit(NewAlbumEvent.CloseDialog)
+                updateInfo()
             },
             onFailure = {
                 state = state.copy(progress = NewAlbumState.Progress.None)
@@ -221,6 +213,18 @@ internal class NewAlbumViewModel(
         } while (offset < bytes)
 
         return result
+    }
+
+    private fun subscribeOnArtistsList() {
+        artistsRepository.artists
+            .map { list ->
+                list?.map { AvailableArtistVs(id = it.id, name = it.name) }
+                    ?.let { state.copy(artists = it, progress = NewAlbumState.Progress.None) }
+            }
+            .onEach { newState ->
+                newState?.let { state = it } ?: run { artistsRepository.getAllArtists() }
+            }
+            .launchIn(viewModelScope)
     }
 
     private fun emitNewEvent(newEvent: NewAlbumEvent) {

@@ -1,9 +1,11 @@
 package kov_p.pixelplayer_desktop.api_main_flow.di
 
 import kov_p.core_network.bindAuthorizedHttpClient
+import kov_p.pixelplayer_desktop.domain_main_flow.UpdateInfoInteractor
 import kov_p.pixelplayer_desktop.domain_main_flow.albums.AlbumsRepository
 import kov_p.pixelplayer_desktop.domain_main_flow.artists.ArtistsRepository
 import kov_p.pixelplayer_desktop.domain_main_flow.upload.UploadRepository
+import kov_p.pixelplayer_desktop.feature_main_flow._data.UpdateInfoInteractorImpl
 import kov_p.pixelplayer_desktop.feature_main_flow._data.UploadRepositoryImpl
 import kov_p.pixelplayer_desktop.feature_main_flow.albums.AlbumsViewModel
 import kov_p.pixelplayer_desktop.feature_main_flow.albums.data.AlbumsRepositoryImpl
@@ -24,5 +26,7 @@ fun mainFlowModule(baseUrl: String, token: String) = module {
         scopedOf(::AlbumsRepositoryImpl).bind<AlbumsRepository>()
         scopedOf(::AlbumsViewModel)
         scopedOf(::UploadRepositoryImpl).bind<UploadRepository>()
+
+        scopedOf(::UpdateInfoInteractorImpl).bind<UpdateInfoInteractor>()
     }
 }

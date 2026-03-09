@@ -10,6 +10,8 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -19,8 +21,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import kov_p.pixelplayer_desktop.core_ui.CardList
+import kov_p.pixelplayer_desktop.core_ui.collectWithLifecycle
 import kov_p.pixelplayer_desktop.feature_main_flow._di.LocalMainScope
 import kov_p.pixelplayer_desktop.feature_main_flow.artists.ArtistsAction
+import kov_p.pixelplayer_desktop.feature_main_flow.artists.ArtistsEvent
 import kov_p.pixelplayer_desktop.feature_main_flow.artists.ArtistsState
 import kov_p.pixelplayer_desktop.feature_main_flow.artists.ArtistsViewModel
 import kov_p.pixelplayer_desktop.feature_main_flow.artists.new_artist.NewArtistDialog
@@ -36,6 +40,13 @@ fun ArtistsComposable() {
 
     var newDialog by rememberSaveable { mutableStateOf(false) }
 
+    val snackHost = remember { SnackbarHostState() }
+    viewModel.eventsFlow.collectWithLifecycle { event ->
+        when (event) {
+            is ArtistsEvent.ShowError -> snackHost.showSnackbar(message = event.message)
+        }
+    }
+
     Scaffold(
         floatingActionButton = {
             if (state is ArtistsState.Data) {
@@ -49,6 +60,7 @@ fun ArtistsComposable() {
                 }
             }
         },
+        snackbarHost = { SnackbarHost(hostState = snackHost) },
     ) {
         AnimatedContent(
             targetState = viewModel.state,

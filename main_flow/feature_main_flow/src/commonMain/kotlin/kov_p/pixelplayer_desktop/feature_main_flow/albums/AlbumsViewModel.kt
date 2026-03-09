@@ -5,9 +5,12 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.launch
 import kov_p.pixelplayer_desktop.core_ui.launch
 import kov_p.pixelplayer_desktop.domain_main_flow.UpdateInfoInteractor
 import kov_p.pixelplayer_desktop.domain_main_flow.albums.AlbumsRepository
@@ -18,6 +21,9 @@ class AlbumsViewModel(
 ) : ViewModel() {
     var state: AlbumsState by mutableStateOf(AlbumsState.Loading)
         private set
+
+    val eventsFlow: Flow<AlbumsEvent> by lazy { _eventsFlow }
+    private val _eventsFlow = MutableSharedFlow<AlbumsEvent>()
 
     init {
         subscribeToAlbums()
@@ -35,7 +41,14 @@ class AlbumsViewModel(
                 albumsRepository.deleteAlbum(albumId)
                 updateInfo()
             },
+            onFailure = {
+                AlbumsEvent.ShowError(message = it.message.orEmpty()).let(::emitNewEvent)
+            },
         )
+    }
+
+    private fun emitNewEvent(newEvent: AlbumsEvent) {
+        viewModelScope.launch { _eventsFlow.emit(newEvent) }
     }
 
     private fun subscribeToAlbums() {

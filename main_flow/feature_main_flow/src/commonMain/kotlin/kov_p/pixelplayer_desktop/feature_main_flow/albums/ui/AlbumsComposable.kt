@@ -16,6 +16,8 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -28,8 +30,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import kov_p.pixelplayer_desktop.core_ui.CardList
 import kov_p.pixelplayer_desktop.core_ui.EditDialog
+import kov_p.pixelplayer_desktop.core_ui.collectWithLifecycle
 import kov_p.pixelplayer_desktop.feature_main_flow._di.LocalMainScope
 import kov_p.pixelplayer_desktop.feature_main_flow.albums.AlbumAction
+import kov_p.pixelplayer_desktop.feature_main_flow.albums.AlbumsEvent
 import kov_p.pixelplayer_desktop.feature_main_flow.albums.AlbumsState
 import kov_p.pixelplayer_desktop.feature_main_flow.albums.AlbumsViewModel
 import kov_p.pixelplayer_desktop.feature_main_flow.albums.new_album.ui.NewDialog
@@ -43,6 +47,13 @@ fun AlbumsComposable() {
 
     var newDialog by remember { mutableStateOf(false) }
 
+    val snackHost = remember { SnackbarHostState() }
+    viewModel.eventsFlow.collectWithLifecycle { event ->
+        when (event) {
+            is AlbumsEvent.ShowError -> snackHost.showSnackbar(message = event.message)
+        }
+    }
+
     Scaffold(
         floatingActionButton = {
             if (state is AlbumsState.Data) {
@@ -51,6 +62,7 @@ fun AlbumsComposable() {
                 }
             }
         },
+        snackbarHost = { SnackbarHost(hostState = snackHost) },
     ) {
         AnimatedContent(
             targetState = state,

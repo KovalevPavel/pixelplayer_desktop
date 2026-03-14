@@ -58,14 +58,14 @@ fun EntityCard(
             verticalAlignment = Alignment.CenterVertically,
         ) {
             SubcomposeAsyncImage(
-                modifier = Modifier
-                    .size(120.dp)
-                    .clip(RoundedCornerShape(12.dp)),
+                modifier = Modifier.size(120.dp).clip(RoundedCornerShape(12.dp)),
                 model = image,
                 contentDescription = null,
                 contentScale = ContentScale.Crop,
                 loading = {
-                    CircularProgressIndicator()
+                    Box(contentAlignment = Alignment.Center) {
+                        CircularProgressIndicator()
+                    }
                 },
                 onError = {
                     println("Error coil:\n${it.result}")

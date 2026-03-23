@@ -4,6 +4,9 @@ data class TrackMeta(
     val title: String?,
     val albumTitle: String?,
     val artist: String?,
+    val duration: Int?,
+    val bitrate: Long?,
+    val isLossless: Boolean?,
     val position: Int?,
     val trackTotal: Int?,
     val disk: Int?,
@@ -17,6 +20,9 @@ data class TrackMeta(
 
         other as TrackMeta
 
+        if (duration != other.duration) return false
+        if (bitrate != other.bitrate) return false
+        if (isLossless != other.isLossless) return false
         if (position != other.position) return false
         if (trackTotal != other.trackTotal) return false
         if (disk != other.disk) return false
@@ -31,7 +37,10 @@ data class TrackMeta(
     }
 
     override fun hashCode(): Int {
-        var result = position ?: 0
+        var result = duration ?: 0
+        result = 31 * result + (bitrate?.hashCode() ?: 0)
+        result = 31 * result + (isLossless?.hashCode() ?: 0)
+        result = 31 * result + (position ?: 0)
         result = 31 * result + (trackTotal ?: 0)
         result = 31 * result + (disk ?: 0)
         result = 31 * result + (discTotal ?: 0)

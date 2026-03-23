@@ -90,6 +90,9 @@ internal class NewAlbumViewModel(
                             title = track.title,
                             position = trackPos,
                             disk = diskNum.takeIf { disks.size > 1 },
+                            duration = track.duration ?: 0,
+                            bitrate = track.bitrate ?: 0,
+                            isLossless = track.isLossless,
                             albumId = albumId,
                             fileFormat = track.path.substringAfterLast(delimiter = '.', missingDelimiterValue = ""),
                         ) to track.path
@@ -226,7 +229,7 @@ internal class NewAlbumViewModel(
     }
 
     companion object {
-        private const val MAX_CHUNKS_SIZE = 2 * 1024 * 1024 // 2 Mb
+        private const val MAX_CHUNKS_SIZE = 2 shl 20 // 2 Mb
         private const val APP_BASE_DIR = "pixelplayer"
     }
 }
@@ -236,6 +239,9 @@ private data class TrackDto(
     @SerialName("title") val title: String,
     @SerialName("position") val position: Int,
     @SerialName("disk") val disk: Int?,
+    @SerialName("duration") val duration: Int,
+    @SerialName("bitrate") val bitrate: Int,
+    @SerialName("lossless") val isLossless: Boolean,
     @SerialName("album_id") val albumId: String,
     @SerialName("file_format") val fileFormat: String,
 )

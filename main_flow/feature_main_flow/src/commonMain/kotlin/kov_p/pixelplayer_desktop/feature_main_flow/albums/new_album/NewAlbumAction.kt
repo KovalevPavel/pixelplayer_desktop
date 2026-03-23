@@ -15,6 +15,9 @@ internal sealed interface NewAlbumAction {
     data class NewTrack(
         val title: String,
         val path: String,
+        val duration: Int?,
+        val bitrate: Int?,
+        val isLossless: Boolean,
     ) {
         val isFilled get() = title.isNotEmpty() && path.isNotEmpty()
     }

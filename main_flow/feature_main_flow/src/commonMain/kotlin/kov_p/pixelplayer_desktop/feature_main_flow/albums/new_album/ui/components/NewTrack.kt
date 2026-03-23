@@ -83,7 +83,11 @@ private fun NewTrackPreview() {
         NewTrack(
             position = 1,
             viewState = NewAlbumAction.NewTrack(
-                title = title, path = "/hardcoded/path/to/track.mp3",
+                title = title,
+                path = "/hardcoded/path/to/track.mp3",
+                duration = null,
+                bitrate = null,
+                isLossless = false,
             ),
             onTitleChanged = { title = it },
             onRemove = {},

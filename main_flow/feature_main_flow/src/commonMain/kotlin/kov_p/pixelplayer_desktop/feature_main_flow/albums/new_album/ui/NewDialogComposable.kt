@@ -44,7 +44,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.minimumInteractiveComponentSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -180,11 +179,8 @@ internal fun NewDialogContent(
         var trackPickerVisible by remember { mutableStateOf(false) }
         var disks: DisksList by remember { mutableStateOf(listOf(emptyList())) }
 
-        val isButtonEnabled by remember {
-            derivedStateOf {
-                selectedArtist != null && newAlbumName.isNotEmpty() && cover != null && year > 0 && disks.musicIsReady()
-            }
-        }
+        val isButtonEnabled =
+            selectedArtist != null && newAlbumName.isNotEmpty() && cover != null && year > 0 && disks.musicIsReady()
 
         DialogHeader(
             selectedArtist = selectedArtist,
@@ -240,7 +236,13 @@ internal fun NewDialogContent(
                                     year = it
                                 }
                             }
-                            track.copy(title = meta?.title.orEmpty())
+
+                            track.copy(
+                                title = meta?.title.orEmpty(),
+                                duration = meta?.duration,
+                                bitrate = meta?.bitrate?.toInt(),
+                                isLossless = meta?.isLossless ?: false,
+                            )
                         }
 
                         disks = disks.toMutableList().apply {
@@ -456,7 +458,7 @@ internal fun TrackList(
             list?.map { file ->
                 val path = file.path
                 val title = path.substringAfterLast("/").substringBeforeLast(".")
-                NewAlbumAction.NewTrack(title = title, path = path)
+                NewAlbumAction.NewTrack(title = title, path = path, duration = null, bitrate = null, isLossless = false)
             }?.let { onTracksSelected(it) }
         },
     )

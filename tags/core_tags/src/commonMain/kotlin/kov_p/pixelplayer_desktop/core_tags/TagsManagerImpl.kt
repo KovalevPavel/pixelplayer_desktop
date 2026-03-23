@@ -9,25 +9,27 @@ import java.io.File
 
 internal class TagsManagerImpl : TagsManager {
     override suspend fun getTrackMeta(file: String, readCover: Boolean): TrackMeta? {
-        return AudioFileIO.read(File(file))
-            .tag
-            ?.let {
-                TrackMeta(
-                    title = it.getFirst(FieldKey.TITLE),
-                    albumTitle = it.getFirst(FieldKey.ALBUM),
-                    artist = it.getFirst(FieldKey.ALBUM_ARTIST),
-                    position = it.getFirst(FieldKey.TRACK)?.toIntOrNull(),
-                    trackTotal = it.getFirst(FieldKey.TRACK_TOTAL)?.toIntOrNull(),
-                    disk = it.getFirst(FieldKey.DISC_NO).toIntOrNull(),
-                    discTotal = it.getFirst(FieldKey.DISC_TOTAL).toIntOrNull(),
-                    cover = it.firstArtwork?.binaryData,
-                    year = run {
-                        it.getFirst(FieldKey.ALBUM_YEAR).toIntOrNull()
-                            ?: it.getFirst(FieldKey.ORIGINAL_YEAR).toIntOrNull()
-                            ?: it.getFirst(FieldKey.YEAR).toIntOrNull()
-                    },
-                )
-            }
+        val audioFile = AudioFileIO.read(File(file))
+        val tag = audioFile.tag ?: return null
+
+        return TrackMeta(
+            title = tag.getFirst(FieldKey.TITLE),
+            albumTitle = tag.getFirst(FieldKey.ALBUM),
+            artist = tag.getFirst(FieldKey.ALBUM_ARTIST),
+            duration = audioFile.audioHeader.trackLength,
+            bitrate = audioFile.audioHeader.bitRateAsNumber,
+            isLossless = audioFile.audioHeader.isLossless,
+            position = tag.getFirst(FieldKey.TRACK)?.toIntOrNull(),
+            trackTotal = tag.getFirst(FieldKey.TRACK_TOTAL)?.toIntOrNull(),
+            disk = tag.getFirst(FieldKey.DISC_NO)?.toIntOrNull(),
+            discTotal = tag.getFirst(FieldKey.DISC_TOTAL)?.toIntOrNull(),
+            cover = tag.firstArtwork?.binaryData?.takeIf { readCover },
+            year = tag.run {
+                getFirst(FieldKey.ALBUM_YEAR).toIntOrNull()
+                    ?: getFirst(FieldKey.ORIGINAL_YEAR).toIntOrNull()
+                    ?: getFirst(FieldKey.YEAR).toIntOrNull()
+            },
+        )
     }
 
     override suspend fun writeTrackMeta(file: String, meta: TrackMeta) {
